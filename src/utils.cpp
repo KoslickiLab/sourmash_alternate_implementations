@@ -191,7 +191,8 @@ void compute_intersection_matrix_by_sketches(int query_sketch_start_index, int q
                                             int** intersectionMatrix, 
                                             double containment_threshold,
                                             std::vector<std::vector<int>>& similars,
-                                            bool show_progress = false) {
+                                            bool show_progress,
+                                            int ksize) {
     
     const int num_sketches_ref = sketches_ref.size();
     const int num_sketches_query = sketches_query.size();
@@ -271,9 +272,11 @@ void compute_intersection_matrix_by_sketches(int query_sketch_start_index, int q
             std::string ref_name = sketches_ref[j].name;
             std::string query_md5 = sketches_query[i].md5;
             std::string ref_md5 = sketches_ref[j].md5;
+            double max_containment = std::max(containment_i_in_j, containment_j_in_i);
+            double max_containment_ani = pow(max_containment, 1.0/ksize);
 
-            // write i, query_name, query_md5, j, ref_name, ref_md5, jaccard, containment_i_in_j, containment_j_in_i
-            outfile << i << ",\"" << query_name << "\"," << query_md5 << "," << j << ",\"" << ref_name << "\"," << ref_md5 << "," << jaccard << "," << containment_i_in_j << "," << containment_j_in_i << std::endl;
+            // write i, query_name, query_md5, j, ref_name, ref_md5, jaccard, containment_i_in_j, containment_j_in_i, max_containment, max_containment_ani
+            outfile << i << ",\"" << query_name << "\"," << query_md5 << "," << j << ",\"" << ref_name << "\"," << ref_md5 << "," << jaccard << "," << containment_i_in_j << "," << containment_j_in_i << "," << max_containment << "," << max_containment_ani << std::endl;
             
             similars[i].push_back(j);
         }
@@ -301,7 +304,8 @@ void compute_intersection_matrix(std::vector<Sketch>& sketches_query,
                                 std::string& out_dir, 
                                 std::vector<std::vector<int>>& similars,
                                 double containment_threshold,
-                                int num_passes, int num_threads) {
+                                int num_passes, int num_threads,
+                                int ksize) {
     
     int num_sketches_query = sketches_query.size();
     int num_sketches_ref = sketches_ref.size();
@@ -347,7 +351,7 @@ void compute_intersection_matrix(std::vector<Sketch>& sketches_query,
                             std::ref(sketches_query), std::ref(sketches_ref), 
                             std::ref(multi_sketch_index_ref), 
                             intersectionMatrix, containment_threshold, 
-                            std::ref(similars), i == num_threads - 1);
+                            std::ref(similars), i == num_threads - 1, ksize);
             threads.emplace_back(std::move(t));
         }
 

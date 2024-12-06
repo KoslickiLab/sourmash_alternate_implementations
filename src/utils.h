@@ -20,6 +20,7 @@
 #include <sstream>
 #include <chrono>
 #include <random>
+#include <cmath>
 
 #include "json.hpp"
 #include "MultiSketchIndex.h"
@@ -125,7 +126,8 @@ void compute_intersection_matrix(std::vector<Sketch>& sketches_query,
                                 std::string& out_dir, 
                                 std::vector<std::vector<int>>& similars,
                                 double containment_threshold,
-                                int num_passes, int num_threads);
+                                int num_passes, int num_threads,
+                                int ksize);
 
 
 
