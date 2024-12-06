@@ -24,6 +24,7 @@ struct Arguments {
     int number_of_threads;
     int num_hashtables;
     int num_passes;
+    int ksize;
 };
 
 
@@ -71,7 +72,8 @@ void do_compare(Arguments& args) {
                                 similars, 
                                 args.containment_threshold, 
                                 args.num_passes,
-                                args.number_of_threads);
+                                args.number_of_threads,
+                                args.ksize);
     auto end_compute = chrono::high_resolution_clock::now();
     auto duration_compute = chrono::duration_cast<chrono::seconds>(end_compute - start_compute);
     cout << "Containment values computed in " << duration_compute.count() << " seconds." << endl;
@@ -95,7 +97,7 @@ void do_compare(Arguments& args) {
 
     // write the header in the output file
     ofstream output_file(args.output_filename);
-    output_file << "query_id, query_name, query_md5, match_id, match_name, match_md5, jaccard, containment_query_in_match, containment_match_in_query" << endl;
+    output_file << "query_id, query_name, query_md5, match_id, match_name, match_md5, jaccard, containment_query_in_match, containment_match_in_query, max_containment, max_containment_ani" << endl;
     output_file.close();
 
     // combining command: cat 
@@ -169,6 +171,12 @@ void parse_args(int argc, char** argv, Arguments &arguments) {
         .scan<'i', int>()
         .default_value(1)
         .store_into(arguments.num_passes);
+
+    parser.add_argument("-k", "--ksize")
+        .help("The k-mer size")
+        .scan<'i', int>()
+        .default_value(31)
+        .store_into(arguments.ksize);
     
     try {
         parser.parse_args(argc, argv);
@@ -192,6 +200,7 @@ void show_args(Arguments &args) {
     cout << "*   Number of threads: " << args.number_of_threads << endl;
     cout << "*   Number of hash tables: " << args.num_hashtables << endl;
     cout << "*   Number of passes: " << args.num_passes << endl;
+    cout << "*   K-mer size: " << args.ksize << endl;
     cout << "*" << endl;
     cout << "**************************************" << endl;
 }
