@@ -111,6 +111,15 @@ void do_compare(Arguments& args) {
     }
     cout << "Results written to " << args.output_filename << endl;
 
+    cout << "Removing the individual files in the working directory..." << endl;
+    // remove the individual files in the working directory
+    for (string filename : files_to_combine) {
+        if (remove(filename.c_str()) != 0) {
+            cerr << "Error in removing the file " << filename << endl;
+        }
+    }
+    cout << "Individual files removed." << endl;
+
     // Clean up
     cout << "Cleaning up and exiting... (may take some time)" << endl;
 
