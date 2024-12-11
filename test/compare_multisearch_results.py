@@ -21,6 +21,8 @@ def read_multisearch_output(multisearch_file):
 def read_by_index_output(by_index_file):
     # a csv file with columns: query_id, query_name, query_md5, match_id, match_name, match_md5, jaccard, containment_query_in_match, containment_match_in_query, max_containment, max_containment_ani
     df = pd.read_csv(by_index_file, sep=',')
+    # remove spaces from the column names
+    df.columns = [col.strip() for col in df.columns]
     return df
 
 
