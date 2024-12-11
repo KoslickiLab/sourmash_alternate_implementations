@@ -264,7 +264,7 @@ void compute_intersection_matrix_by_sketches(int query_sketch_start_index, int q
             double containment_j_in_i = 1.0 * intersectionMatrix[i-negative_offset][j] / sketches_ref[j].size();
             
             // containment_i_in_j is the containment of query in target, i is the query
-            if (containment_i_in_j < containment_threshold) {
+            if (containment_i_in_j <= containment_threshold) {
                 continue;
             }
 
