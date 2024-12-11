@@ -165,7 +165,7 @@ void parse_args(int argc, char** argv, Arguments &arguments) {
 
     parser.add_argument("-c", "--containment-threshold")
         .help("The containment threshold above which outputs are written")
-        .scan<'g', double>()
+        .scan<'f', double>()
         .default_value(0.5)
         .store_into(arguments.containment_threshold);
 
