@@ -1,6 +1,5 @@
 import argparse
 import pandas as pd
-from tqdm import tqdm
 import multiprocessing
 
 def parse_args():
