@@ -17,7 +17,8 @@ using namespace std;
 using json = nlohmann::json;
 
 struct Arguments {
-    string filelist;
+    string filelist_queries;
+    string filelist_targets;
     string working_dir;
     string output_filename;
     double containment_threshold;
@@ -34,18 +35,27 @@ typedef Arguments Arguments;
 
 void do_compare(Arguments& args) {
     // data structures
-    vector<string> all_sketch_paths;
-    vector<Sketch> all_sketches;
+    vector<string> query_sketch_paths;
+    vector<string> target_sketch_paths;
+    vector<Sketch> query_sketches;
+    vector<Sketch> target_sketches;
     vector<int> empty_sketch_ids;
-    MultiSketchIndex all_sketch_index(args.num_hashtables);
+    MultiSketchIndex target_sketch_index(args.num_hashtables);
 
     // Read the sketches
     auto read_start = chrono::high_resolution_clock::now();
     cout << "Reading all sketches using " << args.number_of_threads << " threads" << endl;
-    get_sketch_paths(args.filelist, all_sketch_paths);
-    read_sketches(all_sketch_paths, 
-                    all_sketches, 
+    get_sketch_paths(args.filelist_queries, query_sketch_paths);
+    get_sketch_paths(args.filelist_targets, target_sketch_paths);
+    cout << "Number of query sketches to read: " << query_sketch_paths.size() << endl;
+    read_sketches(query_sketch_paths, 
+                    query_sketches, 
                     empty_sketch_ids, 
+                    args.number_of_threads);
+    cout << "Number of target sketches to read: " << target_sketch_paths.size() << endl;
+    read_sketches(target_sketch_paths,
+                    target_sketches,
+                    empty_sketch_ids,
                     args.number_of_threads);
     auto read_end = chrono::high_resolution_clock::now();
     auto read_duration = chrono::duration_cast<chrono::seconds>(read_end - read_start);
@@ -54,8 +64,8 @@ void do_compare(Arguments& args) {
     // Compute the index from the sketches
     auto start = chrono::high_resolution_clock::now();
     cout << "Building an index on all the kmers... (will take some time)" << endl;
-    compute_index_from_sketches(all_sketches, 
-                                all_sketch_index, 
+    compute_index_from_sketches(target_sketches, 
+                                target_sketch_index, 
                                 args.number_of_threads);
     auto end = chrono::high_resolution_clock::now();
     auto duration_in_seconds = chrono::duration_cast<chrono::seconds>(end - start);
@@ -65,9 +75,9 @@ void do_compare(Arguments& args) {
     cout << "Computing all v all containment values..." << endl;
     vector<vector<int>> similars;
     auto start_compute = chrono::high_resolution_clock::now();
-    compute_intersection_matrix(all_sketches, 
-                                all_sketches, 
-                                all_sketch_index, 
+    compute_intersection_matrix(query_sketches, 
+                                target_sketches, 
+                                target_sketch_index, 
                                 args.working_dir, 
                                 similars, 
                                 args.containment_threshold, 
@@ -133,10 +143,15 @@ void parse_args(int argc, char** argv, Arguments &arguments) {
 
     argparse::ArgumentParser parser("compare");
 
-    parser.add_argument("filelist")
-        .help("The path to the file containing the paths to the sketches")
+    parser.add_argument("filelist_queries")
+        .help("The path to the file containing the paths to the query sketches")
         .required()
-        .store_into(arguments.filelist);
+        .store_into(arguments.filelist_queries);
+
+    parser.add_argument("filelist_targets")
+        .help("The path to the file containing the paths to the target sketches")
+        .required()
+        .store_into(arguments.filelist_targets);
 
     parser.add_argument("working_dir")
         .help("The directory where smaller files will be stored")
@@ -193,7 +208,8 @@ void parse_args(int argc, char** argv, Arguments &arguments) {
 void show_args(Arguments &args) {
     cout << "**************************************" << endl;
     cout << "*" << endl;
-    cout << "*   Filelist: " << args.filelist << endl;
+    cout << "*   Query filelist: " << args.filelist_queries << endl;
+    cout << "*   Target filelist: " << args.filelist_targets << endl;
     cout << "*   Working directory: " << args.working_dir << endl;
     cout << "*   Output filename: " << args.output_filename << endl;
     cout << "*   Containment threshold: " << args.containment_threshold << endl;
