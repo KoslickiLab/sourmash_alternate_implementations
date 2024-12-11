@@ -78,7 +78,7 @@ def test_one_chunk(df_multisearch, df_by_index, query_genome_names, genome_names
             
             if match_name not in multisearch_results_dict:
                 # print all information
-                print('Result found in by_index but not in multisearch: query_name =', name_query_genome, ', match_name =', match_name, ', jaccard =', jaccard_by_index, ', containment =', containment_by_index, ', query_id =', i, ', match_id =', match_id)
+                print('Result found in by_index but not in multisearch: query_name =', name_query_genome, ', match_name =', match_name, ', jaccard =', jaccard_by_index, ', containment =', max_containment_by_index)
                 continue
             
             jaccard_multisearch, max_containment_multisearch = multisearch_results_dict[match_name]
