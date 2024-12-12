@@ -101,19 +101,47 @@ std::vector<int> MultiSketchIndex::remove_hash(hash_t hash_value) {
 
 bool MultiSketchIndex::write_to_file(std::string filename) {
     // Write the index to a file
-    std::ofstream output_file(filename);
+    std::ofstream output_file(filename, std::ios::binary);
     if (!output_file.is_open()) {
         return false;
     }
     for (int i = 0; i < num_of_indices; i++) {
         for (auto const& [hash_value, sketch_indices] : multiple_sketch_indices[i]) {
-            output_file << hash_value << ",";
-            for (int sketch_index : sketch_indices) {
-                output_file << sketch_index << ",";
+            // write hash_value
+            output_file.write(reinterpret_cast<const char*>(&hash_value), sizeof(hash_t));
+            // write number of sketch indices
+            size_t num_sketch_indices = sketch_indices.size();
+            output_file.write(reinterpret_cast<const char*>(&num_sketch_indices), sizeof(size_t));
+            // write sketch indices
+            for (size_t j = 0; j < num_sketch_indices; j++) {
+                output_file.write(reinterpret_cast<const char*>(&sketch_indices[j]), sizeof(int));
             }
-            output_file << std::endl;
         }
     }
     output_file.close();
     return true;
+}
+
+
+MultiSketchIndex::MultiSketchIndex(std::string filename) {
+    // Constructor
+    this->num_of_indices = 4096;
+    multiple_sketch_indices = std::vector<std::unordered_map<hash_t, std::vector<int>>>(num_of_indices);
+    mutexes = std::vector<std::mutex>(num_of_indices);
+    std::ifstream input_file(filename, std::ios::binary);
+    if (!input_file.is_open()) {
+        return;
+    }
+    while (input_file.peek() != EOF) {
+        hash_t hash_value;
+        input_file.read(reinterpret_cast<char*>(&hash_value), sizeof(hash_t));
+        size_t num_sketch_indices;
+        input_file.read(reinterpret_cast<char*>(&num_sketch_indices), sizeof(size_t));
+        std::vector<int> sketch_indices(num_sketch_indices);
+        for (size_t i = 0; i < num_sketch_indices; i++) {
+            input_file.read(reinterpret_cast<char*>(&sketch_indices[i]), sizeof(int));
+        }
+        add_hash(hash_value, sketch_indices);
+    }
+    input_file.close();
 }

@@ -23,6 +23,8 @@ class MultiSketchIndex {
     public:
         MultiSketchIndex(int num_of_indices);
         MultiSketchIndex();
+        MultiSketchIndex(std::string index_filename, int num_of_indices);
+        MultiSketchIndex(std::string index_filename);
         ~MultiSketchIndex();
 
         /**

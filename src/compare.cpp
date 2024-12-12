@@ -82,6 +82,7 @@ void do_compare(Arguments& args) {
             cerr << "Error in saving the index to " << args.index_filename << endl;
             exit(1);
         }
+        cout << "Index saved to " << args.index_filename << endl;
     }
 
 
