@@ -6,6 +6,8 @@
 #include <unordered_map>
 #include <mutex>
 
+#include <fstream>
+
 
 #ifndef HASH_T
 #define HASH_T
@@ -95,6 +97,15 @@ class MultiSketchIndex {
             }
             return total_size;
         }
+
+        /**
+         * @brief Write the index to a file.
+         * 
+         * @param filename 
+         * @return true if successfully written to file
+         * @return false if any error when writing to file
+         */
+        bool write_to_file(std::string filename);
 
         
     private:

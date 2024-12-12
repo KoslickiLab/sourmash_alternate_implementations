@@ -96,3 +96,24 @@ std::vector<int> MultiSketchIndex::remove_hash(hash_t hash_value) {
     mutexes[idx_of_hash].unlock();
     return sketch_indices;
 }
+
+
+
+bool MultiSketchIndex::write_to_file(std::string filename) {
+    // Write the index to a file
+    std::ofstream output_file(filename);
+    if (!output_file.is_open()) {
+        return false;
+    }
+    for (int i = 0; i < num_of_indices; i++) {
+        for (auto const& [hash_value, sketch_indices] : multiple_sketch_indices[i]) {
+            output_file << hash_value << ",";
+            for (int sketch_index : sketch_indices) {
+                output_file << sketch_index << ",";
+            }
+            output_file << std::endl;
+        }
+    }
+    output_file.close();
+    return true;
+}
