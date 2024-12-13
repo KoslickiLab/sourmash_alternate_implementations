@@ -92,8 +92,12 @@ int main(int argc, char** argv) {
 
     MultiSketchIndex multi_sketch_index(arguments.num_hashtables);
     compute_index_from_sketches(sketches, multi_sketch_index, arguments.number_of_threads);
-    cout << "Index built. Writing to file: " << arguments.index_directory_name << endl;
+    cout << "Index built." << endl;
+    cout << "Some index stats:" << endl;
+    multi_sketch_index.show_index_stats();
 
+
+    cout << "Writing index to file..." << endl;
     std::vector<std::string> genome_names;
     std::vector<size_t> sketch_sizes;
     for (auto &sketch : sketches) {

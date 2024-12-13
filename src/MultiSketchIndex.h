@@ -127,6 +127,17 @@ class MultiSketchIndex {
          */
         std::pair<std::vector<std::string>, std::vector<size_t>> load_from_file(std::string directory_name);
 
+
+
+        void show_index_stats() {
+            std::cout << "Number of indices: " << num_of_indices << std::endl;
+            std::cout << "Index size: " << size() << std::endl;
+            //show size of the first 10 indices
+            for (int i = 0; i < 10; i++) {
+                std::cout << "Index " << i << " size: " << multiple_sketch_indices[i].size() << std::endl;
+            }
+        }
+
         
     private:
         std::vector<std::unordered_map<hash_t, std::vector<int>>> multiple_sketch_indices;
@@ -154,7 +165,7 @@ class MultiSketchIndex {
          * @return true 
          * @return false 
          */
-        void write_one_chunk(std::ofstream &file, int start_index, int end_index);
+        void write_one_chunk(std::string filename, int start_index, int end_index);
 
 
         /**

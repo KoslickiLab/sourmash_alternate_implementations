@@ -99,8 +99,9 @@ std::vector<int> MultiSketchIndex::remove_hash(hash_t hash_value) {
 
 
 
-void MultiSketchIndex::write_one_chunk(std::ofstream &file, int start_index, int end_index) {
+void MultiSketchIndex::write_one_chunk(std::string filename, int start_index, int end_index) {
     // Write one chunk of the index to a file
+    std::ofstream file(filename, std::ios::binary);
     for (int i = start_index; i < end_index; i++) {
         for (auto const& [hash_value, sketch_indices] : multiple_sketch_indices[i]) {
             // write hash_value
@@ -168,10 +169,9 @@ bool MultiSketchIndex::write_to_file(std::string directory_name,
         int start_index = i * chunk_size;
         int end_index = (i == num_threads - 1) ? num_of_indices : (i + 1) * chunk_size;
         std::string filename_this_thread = directory_name + "/chunk_" + std::to_string(i);
-        std::ofstream output_file_this_thread(filename_this_thread, std::ios::binary);
         threads.push_back(std::thread(&MultiSketchIndex::write_one_chunk, 
                             this, 
-                            std::ref(output_file_this_thread), 
+                            filename_this_thread, 
                             start_index, 
                             end_index));
         files_written.push_back(filename_this_thread);
