@@ -8,6 +8,7 @@
 #include <thread>
 #include <sys/stat.h>
 #include <dirent.h>
+#include <cstring>
 
 #include <fstream>
 
