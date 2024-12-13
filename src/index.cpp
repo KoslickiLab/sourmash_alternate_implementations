@@ -1,5 +1,7 @@
 #include <iostream>
 #include <vector>
+#include <string>
+#include <cstdlib>
 
 #include "argparse.hpp"
 #include "json.hpp"
@@ -112,7 +114,12 @@ int main(int argc, char** argv) {
     }
     cout << "Index written to file." << endl;
 
+    exit(0);
+    return 0;
 
+    // make the program exit faster using exit(0)
+
+    /*
     // following code is for testing the load_from_file function
     cout << "Loading index from file..." << endl;
     MultiSketchIndex loaded_index(arguments.num_hashtables);
@@ -149,9 +156,6 @@ int main(int argc, char** argv) {
         cout << "Error: The loaded index is not the same as the original one." << endl;
         exit(1);
     }
-
-
-
-    return 0;
+    */
 
 }
