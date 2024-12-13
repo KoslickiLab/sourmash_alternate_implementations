@@ -138,6 +138,31 @@ class MultiSketchIndex {
             }
         }
 
+
+        bool operator==(const MultiSketchIndex &other) {
+            // iterate over all the hash values
+            for (int i = 0; i < num_of_indices; i++) {
+                for (auto const& [hash_value, sketch_indices] : multiple_sketch_indices[i]) {
+                    if (!other.hash_exists(hash_value)) {
+                        return false;
+                    }
+
+                    const std::vector<int> &other_sketch_indices = other.get_sketch_indices(hash_value);
+                    if (sketch_indices.size() != other_sketch_indices.size()) {
+                        return false;
+                    }
+
+                    // check if set of sketch indices are the same
+                    for (int j = 0; j < sketch_indices.size(); j++) {
+                        if (sketch_indices[j] != other_sketch_indices[j]) {
+                            return false;
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+
         
     private:
         std::vector<std::unordered_map<hash_t, std::vector<int>>> multiple_sketch_indices;

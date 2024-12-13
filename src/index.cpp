@@ -112,6 +112,34 @@ int main(int argc, char** argv) {
     }
     cout << "Index written to file." << endl;
 
+
+    // following code is for testing the load_from_file function
+    cout << "Loading index from file..." << endl;
+    MultiSketchIndex loaded_index(arguments.num_hashtables);
+    auto [loaded_genome_names, loaded_sketch_sizes] = loaded_index.load_from_file(arguments.index_directory_name);
+
+    // check if the loaded genome names and sketch sizes are the same as the original ones
+    if (genome_names.size() != loaded_genome_names.size() || sketch_sizes.size() != loaded_sketch_sizes.size()) {
+        cout << "Error: The loaded genome names or sketch sizes are not the same as the original ones." << endl;
+        exit(1);
+    }
+
+    for (int i = 0; i < genome_names.size(); i++) {
+        if (genome_names[i] != loaded_genome_names[i] || sketch_sizes[i] != loaded_sketch_sizes[i]) {
+            cout << "Error: The loaded genome names or sketch sizes are not the same as the original ones." << endl;
+            exit(1);
+        }
+    }
+
+    if (multi_sketch_index == loaded_index) {
+        cout << "Index loaded successfully." << endl;
+    } else {
+        cout << "Error: The loaded index is not the same as the original one." << endl;
+        exit(1);
+    }
+
+
+
     return 0;
 
 }
