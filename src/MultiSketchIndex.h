@@ -83,7 +83,7 @@ class MultiSketchIndex {
          * @return true If the hash value exists in the index.
          * @return false If the hash value does not exist in the index.
          */
-        bool hash_exists(hash_t hash_value) {
+        const bool hash_exists(hash_t hash_value) {
             int idx_of_hash = index_of_hash(hash_value);
             return multiple_sketch_indices[idx_of_hash].find(hash_value) != multiple_sketch_indices[idx_of_hash].end();
         }
@@ -94,7 +94,7 @@ class MultiSketchIndex {
          * 
          * @return size_t The size of the index.
          */
-        size_t size() {
+        const size_t size() {
             size_t total_size = 0;
             for (int i = 0; i < num_of_indices; i++) {
                 total_size += multiple_sketch_indices[i].size();
@@ -114,7 +114,7 @@ class MultiSketchIndex {
          * @return true if the index is written successfully
          * @return false if the index is not written successfully
          */
-        bool write_to_file(std::string directory_name, 
+        const bool write_to_file(std::string directory_name, 
                                     int num_threads, 
                                     std::vector<std::string> genome_names,
                                     std::vector<size_t> sketch_sizes);
