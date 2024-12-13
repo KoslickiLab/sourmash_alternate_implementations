@@ -115,7 +115,11 @@ int main(int argc, char** argv) {
         sketch_sizes.push_back(sketch.size());
     }
 
-    bool success = multi_sketch_index.write_to_file(arguments.index_directory_name, arguments.number_of_threads, genome_names, sketch_sizes);
+    bool success = multi_sketch_index.write_to_file(arguments.index_directory_name, 
+                                            arguments.number_of_threads, 
+                                            genome_names, 
+                                            sketch_sizes,
+                                            arguments.force_write);
     if (!success) {
         cout << "Error writing index to file." << endl;
         exit(1);
