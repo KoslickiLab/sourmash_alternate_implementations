@@ -137,6 +137,8 @@ int main(int argc, char** argv) {
     for (int i = 0; i < genome_names.size(); i++) {
         if (genome_names[i] != loaded_genome_names[i] || sketch_sizes[i] != loaded_sketch_sizes[i]) {
             cout << "Error: The loaded genome names or sketch sizes are not the same as the original ones." << endl;
+            cout << "Original: " << genome_names[i] << " " << sketch_sizes[i] << endl;
+            cout << "Loaded: " << loaded_genome_names[i] << " " << loaded_sketch_sizes[i] << endl;
             exit(1);
         }
     }
