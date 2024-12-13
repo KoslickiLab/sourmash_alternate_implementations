@@ -255,7 +255,9 @@ std::pair<std::vector<std::string>, std::vector<size_t>> MultiSketchIndex::load_
     std::vector<std::string> genome_names;
     for (int i = 0; i < num_genomes; i++) {
         std::string genome_name;
-        summary_file >> genome_name;
+        // read the entire line
+        summary_file >> std::ws;
+        std::getline(summary_file, genome_name);
         genome_names.push_back(genome_name);
     }
 
