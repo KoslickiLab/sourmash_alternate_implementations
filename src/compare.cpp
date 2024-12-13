@@ -26,8 +26,6 @@ struct Arguments {
     int num_hashtables;
     int num_passes;
     int ksize;
-    bool save_index;
-    string index_filename;
 };
 
 
@@ -72,18 +70,6 @@ void do_compare(Arguments& args) {
     auto end = chrono::high_resolution_clock::now();
     auto duration_in_seconds = chrono::duration_cast<chrono::seconds>(end - start);
     cout << "Index building completed in " << duration_in_seconds.count() << " seconds." << endl;
-
-
-    // save the index if set in the command line arguments
-    if (args.save_index) {
-        cout << "Saving the index to " << args.index_filename << endl;
-        bool success = target_sketch_index.write_to_file(args.index_filename);
-        if (!success) {
-            cerr << "Error in saving the index to " << args.index_filename << endl;
-            exit(1);
-        }
-        cout << "Index saved to " << args.index_filename << endl;
-    }
 
 
     // Compute all v all containment values
@@ -207,17 +193,6 @@ void parse_args(int argc, char** argv, Arguments &arguments) {
         .scan<'i', int>()
         .default_value(31)
         .store_into(arguments.ksize);
-
-    parser.add_argument("--save-index")
-        .help("Save the index to a file")
-        .default_value(false)
-        .implicit_value(true)
-        .store_into(arguments.save_index);
-
-    parser.add_argument("--index-filename")
-        .help("The filename to save the index")
-        .default_value("index_dump")
-        .store_into(arguments.index_filename);
     
     try {
         parser.parse_args(argc, argv);
@@ -243,8 +218,6 @@ void show_args(Arguments &args) {
     cout << "*   Number of hash tables: " << args.num_hashtables << endl;
     cout << "*   Number of passes: " << args.num_passes << endl;
     cout << "*   K-mer size: " << args.ksize << endl;
-    cout << "*   Save index: " << args.save_index << endl;
-    cout << "*   Index filename: " << args.index_filename << endl;
     cout << "*" << endl;
     cout << "**************************************" << endl;
 }
