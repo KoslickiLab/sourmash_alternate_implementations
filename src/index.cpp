@@ -47,7 +47,13 @@ void parse_args(int argc, char** argv, Arguments &arguments) {
         .default_value(4096)
         .store_into(arguments.num_hashtables);
 
-    parser.parse_args(argc, argv);
+    try {
+        parser.parse_args(argc, argv);
+    } catch (const std::runtime_error &err) {
+        std::cout << err.what() << std::endl;
+        std::cout << parser;
+        exit(1);
+    }
 
 }
 
@@ -55,12 +61,12 @@ void parse_args(int argc, char** argv, Arguments &arguments) {
 
 void show_arguments(Arguments &arguments) {
     cout << "*********************************" << endl;
-    cout << "*" << endl;
-    cout << "* filelist_sketches: " << arguments.filelist_sketches << endl;
-    cout << "* index_directory_name: " << arguments.index_directory_name << endl;
-    cout << "* number_of_threads: " << arguments.number_of_threads << endl;
-    cout << "* num_hashtables: " << arguments.num_hashtables << endl;
-    cout << "*" << endl;
+    cout << "* " << endl;
+    cout << "*  filelist_sketches: " << arguments.filelist_sketches << endl;
+    cout << "*  index_directory_name: " << arguments.index_directory_name << endl;
+    cout << "*  number_of_threads: " << arguments.number_of_threads << endl;
+    cout << "*  num_hashtables: " << arguments.num_hashtables << endl;
+    cout << "* " << endl;
     cout << "*********************************" << endl;
 }
 
@@ -71,6 +77,32 @@ int main(int argc, char** argv) {
     Arguments arguments;
     parse_args(argc, argv, arguments);
     show_arguments(arguments);
+
+    cout << "Reading sketch list..." << endl;
+    vector<string> sketch_paths;
+    get_sketch_paths(arguments.filelist_sketches, sketch_paths);
+    cout << "There are " << sketch_paths.size() << " sketches to read." << endl;
+    cout << "Reading using " << arguments.number_of_threads << " threads..." << endl;
+
+    vector<Sketch> sketches;
+    vector<int> empty_sketch_ids;
+    read_sketches(sketch_paths, sketches, empty_sketch_ids, arguments.number_of_threads);
+    cout << "Reading complete." << endl;
+    cout << "There are " << empty_sketch_ids.size() << " empty sketches. Now building index.." << endl;
+
+    MultiSketchIndex multi_sketch_index(arguments.num_hashtables);
+    compute_index_from_sketches(sketches, multi_sketch_index, arguments.number_of_threads);
+    cout << "Index built. Writing to file: " << arguments.index_directory_name << endl;
+
+    std::vector<std::string> genome_names;
+    std::vector<size_t> sketch_sizes;
+    for (auto &sketch : sketches) {
+        genome_names.push_back(sketch.name);
+        sketch_sizes.push_back(sketch.size());
+    }
+
+    multi_sketch_index.write_to_file(arguments.index_directory_name, arguments.number_of_threads, genome_names, sketch_sizes);
+    cout << "Index written to file." << endl;
 
     return 0;
 

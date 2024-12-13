@@ -5,6 +5,9 @@
 #include <vector>
 #include <unordered_map>
 #include <mutex>
+#include <thread>
+#include <sys/stat.h>
+#include <dirent.h>
 
 #include <fstream>
 
@@ -23,8 +26,6 @@ class MultiSketchIndex {
     public:
         MultiSketchIndex(int num_of_indices);
         MultiSketchIndex();
-        MultiSketchIndex(std::string index_filename, int num_of_indices);
-        MultiSketchIndex(std::string index_filename);
         ~MultiSketchIndex();
 
         /**
@@ -101,13 +102,29 @@ class MultiSketchIndex {
         }
 
         /**
-         * @brief Write the index to a file.
+         * @brief write index to file. Assumptions, the genome names are given correctly,
+         * and the sketch sizes are given correctly. Also assuming that the number of genomes and
+         * the number of sketch sizes are the same.
          * 
-         * @param filename 
-         * @return true if successfully written to file
-         * @return false if any error when writing to file
+         * @param directory_name where the index will be written
+         * @param num_threads number of threads to use
+         * @param genome_names names of the genomes
+         * @param sketch_sizes sizes of the sketches
+         * @return true if the index is written successfully
+         * @return false if the index is not written successfully
          */
-        bool write_to_file(std::string filename);
+        bool write_to_file(std::string directory_name, 
+                                    int num_threads, 
+                                    std::vector<std::string> genome_names,
+                                    std::vector<size_t> sketch_sizes);
+
+        /**
+         * @brief load an index from a file.
+         * 
+         * @param directory_name the directory where the index is stored.
+         * @return std::pair<std::vector<std::string>, std::vector<size_t>> genome names vector and sketch sizes vector
+         */
+        std::pair<std::vector<std::string>, std::vector<size_t>> load_from_file(std::string directory_name);
 
         
     private:
@@ -115,11 +132,36 @@ class MultiSketchIndex {
         std::vector<std::mutex>mutexes;
         int num_of_indices;
 
+        /**
+         * @brief given a hash value, get the index of the hash_table where this hash value should be stored.
+         * 
+         * @param hash_value 
+         * @return int 
+         */
         int index_of_hash(hash_t hash_value) {
             return hash_value % num_of_indices;
         }
 
         const std::vector<int> empty_vector;
+
+        /**
+         * @brief helper function to write one chunk of the index to a file.
+         * 
+         * @param file 
+         * @param start_index 
+         * @param end_index 
+         * @return true 
+         * @return false 
+         */
+        void write_one_chunk(std::ofstream &file, int start_index, int end_index);
+
+
+        /**
+         * @brief load the contents of this file into the hash index
+         * 
+         * @param file 
+         */
+        void load_one_chunk(std::string filename);
         
 };
 
