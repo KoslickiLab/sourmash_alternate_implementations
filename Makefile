@@ -1,6 +1,6 @@
 # Compiler and flags
 CXX = g++
-CXXFLAGS = -O3 -std=c++17 -g
+CXXFLAGS = -O3 -std=c++17
 
 # Source files
 SRC_DIR = src
@@ -50,4 +50,4 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 .PHONY: clean
 clean:
 	rm -f $(OBJ_DIR)/*.o $(BIN_DIR)/*
-	CXXFLAGS = -O3 -std=c++17 -g
+	CXXFLAGS = -O3 -std=c++17
