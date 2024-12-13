@@ -118,6 +118,16 @@ int main(int argc, char** argv) {
     MultiSketchIndex loaded_index(arguments.num_hashtables);
     auto [loaded_genome_names, loaded_sketch_sizes] = loaded_index.load_from_file(arguments.index_directory_name);
 
+    int num_genomes = genome_names.size();
+    int num_sketches = sketch_sizes.size();
+    int num_genomes_loaded = loaded_genome_names.size();
+    int num_sketches_loaded = loaded_sketch_sizes.size();
+
+    cout << "Number of genomes: " << num_genomes << endl;
+    cout << "Number of sketches: " << num_sketches << endl;
+    cout << "Number of genomes loaded: " << num_genomes_loaded << endl;
+    cout << "Number of sketches loaded: " << num_sketches_loaded << endl;
+
     // check if the loaded genome names and sketch sizes are the same as the original ones
     if (genome_names.size() != loaded_genome_names.size() || sketch_sizes.size() != loaded_sketch_sizes.size()) {
         cout << "Error: The loaded genome names or sketch sizes are not the same as the original ones." << endl;
