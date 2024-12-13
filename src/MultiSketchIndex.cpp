@@ -46,11 +46,11 @@ void MultiSketchIndex::add_hash(hash_t hash_value, int sketch_index) {
 
 
 
-const std::vector<int>& MultiSketchIndex::get_sketch_indices(hash_t hash_value) {
+const std::vector<int>& MultiSketchIndex::get_sketch_indices(hash_t hash_value) const {
     // Get the sketch indices for the hash value
     int idx_of_hash = index_of_hash(hash_value);
     if (hash_exists(hash_value)) {
-        return multiple_sketch_indices[idx_of_hash][hash_value];
+        return multiple_sketch_indices[idx_of_hash].at(hash_value);
     } else {
         return empty_vector;
     }
@@ -277,4 +277,10 @@ std::pair<std::vector<std::string>, std::vector<size_t>> MultiSketchIndex::load_
 
     return std::make_pair(genome_names, sketch_sizes);
 
+}
+
+
+bool MultiSketchIndex::hash_exists(hash_t hash_value) const {
+    int idx_of_hash = index_of_hash(hash_value);
+    return multiple_sketch_indices[idx_of_hash].find(hash_value) != multiple_sketch_indices[idx_of_hash].end();
 }
