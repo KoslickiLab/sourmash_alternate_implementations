@@ -207,7 +207,7 @@ void compute_intersection_matrix_by_sketches(int query_sketch_start_index, int q
             if (!multi_sketch_index_ref.hash_exists(hash)) {
                 continue;
             }
-            std::vector<int> ref_sketch_indices = multi_sketch_index_ref.get_sketch_indices(hash);
+            const std::vector<int> ref_sketch_indices = multi_sketch_index_ref.get_sketch_indices(hash);
             for (uint k = 0; k < ref_sketch_indices.size(); k++) {
                 intersectionMatrix[i-negative_offset][ref_sketch_indices[k]]++;
             }
