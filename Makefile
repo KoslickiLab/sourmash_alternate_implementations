@@ -9,7 +9,8 @@ SRCS = $(SRC_DIR)/gather.cpp \
 	   $(SRC_DIR)/prefetch.cpp \
        $(SRC_DIR)/Sketch.cpp \
        $(SRC_DIR)/MultiSketchIndex.cpp \
-       $(SRC_DIR)/utils.cpp
+       $(SRC_DIR)/utils.cpp \
+	   $(SRC_DIR)/index.cpp 
 
 # Object files
 OBJ_DIR = obj
@@ -17,7 +18,7 @@ OBJS = $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SRCS))
 
 # Executables
 BIN_DIR = bin
-TARGETS = $(BIN_DIR)/gather $(BIN_DIR)/compare $(BIN_DIR)/prefetch
+TARGETS = $(BIN_DIR)/gather $(BIN_DIR)/compare $(BIN_DIR)/prefetch $(BIN_DIR)/index
 
 # Default target
 .PHONY: all
@@ -36,6 +37,10 @@ $(BIN_DIR)/prefetch: $(OBJ_DIR)/prefetch.o $(OBJ_DIR)/Sketch.o $(OBJ_DIR)/MultiS
 	@mkdir -p $(BIN_DIR)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
+$(BIN_DIR)/index: $(OBJ_DIR)/index.o $(OBJ_DIR)/Sketch.o $(OBJ_DIR)/MultiSketchIndex.o $(OBJ_DIR)/utils.o
+	@mkdir -p $(BIN_DIR)
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
 # Rule to build object files
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(OBJ_DIR)
@@ -45,3 +50,4 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 .PHONY: clean
 clean:
 	rm -f $(OBJ_DIR)/*.o $(BIN_DIR)/*
+	CXXFLAGS = -O3 -std=c++17

@@ -2,6 +2,8 @@
 
 Following results are on gtdb_rs207, sketches are computed using k = 51, obtained from here: https://farm.cse.ucdavis.edu/~ctbrown/sourmash-db/. Random number of files are selected from all the sketch files using bash command `shuf -n`. Running using 128 threads.
 
+## Many vs many
+
 ### 10k vs 10k
 ```
 Command being timed: "compare filelist_10k filelist_10k temp_working_dir compare_output_10k_v_10k -t 128 -n 2000 -k 51 -c 0.01"
@@ -238,6 +240,93 @@ Command being timed: "compare filelist_30k filelist_30k temp_working_dir compare
         Swaps: 0
         File system inputs: 0
         File system outputs: 16350720
+        Socket messages sent: 0
+        Socket messages received: 0
+        Signals delivered: 0
+        Page size (bytes): 4096
+        Exit status: 0
+```
+
+
+
+## One vs many
+
+### 1 vs 10k
+```
+Command being timed: "compare filelist_1 filelist_10k temp_working_dir compare_output_1_v_10k -t 128 -n 2000 -k 51 -c 0.01"
+        User time (seconds): 86.86
+        System time (seconds): 28.05
+        Percent of CPU this job got: 866%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 0:13.25
+        Average shared text size (kbytes): 0
+        Average unshared data size (kbytes): 0
+        Average stack size (kbytes): 0
+        Average total size (kbytes): 0
+        Maximum resident set size (kbytes): 1848688
+        Average resident set size (kbytes): 0
+        Major (requiring I/O) page faults: 0
+        Minor (reclaiming a frame) page faults: 684809
+        Voluntary context switches: 1216669
+        Involuntary context switches: 203
+        Swaps: 0
+        File system inputs: 0
+        File system outputs: 8
+        Socket messages sent: 0
+        Socket messages received: 0
+        Signals delivered: 0
+        Page size (bytes): 4096
+        Exit status: 0
+```
+
+### 1 vs 20k
+
+```
+Command being timed: "compare filelist_1 filelist_20k temp_working_dir compare_output_1_v_20k -t 128 -n 2000 -k 51 -c 0.01"
+        User time (seconds): 169.37
+        System time (seconds): 53.80
+        Percent of CPU this job got: 887%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 0:25.14
+        Average shared text size (kbytes): 0
+        Average unshared data size (kbytes): 0
+        Average stack size (kbytes): 0
+        Average total size (kbytes): 0
+        Maximum resident set size (kbytes): 3461548
+        Average resident set size (kbytes): 0
+        Major (requiring I/O) page faults: 0
+        Minor (reclaiming a frame) page faults: 1633529
+        Voluntary context switches: 2279784
+        Involuntary context switches: 441
+        Swaps: 0
+        File system inputs: 0
+        File system outputs: 8
+        Socket messages sent: 0
+        Socket messages received: 0
+        Signals delivered: 0
+        Page size (bytes): 4096
+        Exit status: 0
+```
+
+### 1 vs 30k
+
+```
+Command being timed: "compare filelist_1 filelist_30k temp_working_dir compare_output_1_v_30k -t 128 -n 2000 -k 51 -c 0.01"
+        User time (seconds): 270.73
+        System time (seconds): 82.29
+        Percent of CPU this job got: 1003%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 0:35.17
+        Average shared text size (kbytes): 0
+        Average unshared data size (kbytes): 0
+        Average stack size (kbytes): 0
+        Average total size (kbytes): 0
+        Maximum resident set size (kbytes): 5408896
+        Average resident set size (kbytes): 0
+        Major (requiring I/O) page faults: 0
+        Minor (reclaiming a frame) page faults: 1953033
+        Voluntary context switches: 3372865
+        Involuntary context switches: 790
+        Swaps: 0
+        File system inputs: 0
+        File system outputs: 8
         Socket messages sent: 0
         Socket messages received: 0
         Signals delivered: 0

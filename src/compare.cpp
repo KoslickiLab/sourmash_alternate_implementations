@@ -71,6 +71,7 @@ void do_compare(Arguments& args) {
     auto duration_in_seconds = chrono::duration_cast<chrono::seconds>(end - start);
     cout << "Index building completed in " << duration_in_seconds.count() << " seconds." << endl;
 
+
     // Compute all v all containment values
     cout << "Computing all v all containment values..." << endl;
     vector<vector<int>> similars;

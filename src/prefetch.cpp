@@ -94,7 +94,7 @@ void do_prefetch(Arguments& args) {
     }
 
     for (hash_t hash_value : query_sketch.hashes) {
-        vector<int> matching_ref_ids = ref_index.get_sketch_indices(hash_value);
+        const vector<int> matching_ref_ids = ref_index.get_sketch_indices(hash_value);
         for (int ref_id : matching_ref_ids) {
             num_intersection_values[ref_id]++;
         }

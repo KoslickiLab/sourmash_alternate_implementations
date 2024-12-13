@@ -104,7 +104,7 @@ void do_gather(Arguments& args) {
         num_intersection_values_orig[i] = 0;
     }
     for (hash_t hash_value : query_hashes_present_in_ref) {
-        vector<int> matching_ref_ids = ref_index.get_sketch_indices(hash_value);
+        const vector<int> matching_ref_ids = ref_index.get_sketch_indices(hash_value);
         for (int ref_id : matching_ref_ids) {
             num_intersection_values[ref_id]++;
             num_intersection_values_orig[ref_id]++;

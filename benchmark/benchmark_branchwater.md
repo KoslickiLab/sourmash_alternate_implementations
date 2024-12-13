@@ -2,6 +2,8 @@
 
 Following results are on gtdb_rs207, sketches are computed using k = 51, obtained from here: https://farm.cse.ucdavis.edu/~ctbrown/sourmash-db/. Random number of files are selected from all the sketch files using bash command `shuf -n`. Running using 128 threads.
 
+## Many vs many
+
 ### 10k vs 10k
 ```
 Command being timed: "sourmash scripts multisearch -o multisearch_output_10k_v_10k -c 128 filelist_10k filelist_10k -k 51"
@@ -238,6 +240,91 @@ Command being timed: "sourmash scripts multisearch -o multisearch_output_30k_v_3
         Swaps: 0
         File system inputs: 0
         File system outputs: 8433712
+        Socket messages sent: 0
+        Socket messages received: 0
+        Signals delivered: 0
+        Page size (bytes): 4096
+        Exit status: 0
+```
+
+## One vs many
+
+### 1 vs 10k
+```
+Command being timed: "sourmash scripts multisearch -o multisearch_output_1_v_10k -c 128 filelist_1 filelist_10k -k 51"
+        User time (seconds): 102.93
+        System time (seconds): 7.05
+        Percent of CPU this job got: 3918%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 0:02.80
+        Average shared text size (kbytes): 0
+        Average unshared data size (kbytes): 0
+        Average stack size (kbytes): 0
+        Average total size (kbytes): 0
+        Maximum resident set size (kbytes): 943788
+        Average resident set size (kbytes): 0
+        Major (requiring I/O) page faults: 0
+        Minor (reclaiming a frame) page faults: 366895
+        Voluntary context switches: 152598
+        Involuntary context switches: 532
+        Swaps: 0
+        File system inputs: 0
+        File system outputs: 0
+        Socket messages sent: 0
+        Socket messages received: 0
+        Signals delivered: 0
+        Page size (bytes): 4096
+        Exit status: 0
+```
+
+### 1 vs 20k
+
+```
+Command being timed: "sourmash scripts multisearch -o multisearch_output_1_v_20k -c 128 filelist_1 filelist_20k -k 51"
+        User time (seconds): 173.76
+        System time (seconds): 9.10
+        Percent of CPU this job got: 4747%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 0:03.85
+        Average shared text size (kbytes): 0
+        Average unshared data size (kbytes): 0
+        Average stack size (kbytes): 0
+        Average total size (kbytes): 0
+        Maximum resident set size (kbytes): 1563228
+        Average resident set size (kbytes): 0
+        Major (requiring I/O) page faults: 0
+        Minor (reclaiming a frame) page faults: 546059
+        Voluntary context switches: 289137
+        Involuntary context switches: 560
+        Swaps: 0
+        File system inputs: 0
+        File system outputs: 0
+        Socket messages sent: 0
+        Socket messages received: 0
+        Signals delivered: 0
+        Page size (bytes): 4096
+        Exit status: 0
+```
+
+### 1 vs 30k
+
+```
+Command being timed: "sourmash scripts multisearch -o multisearch_output_1_v_30k -c 128 filelist_1 filelist_30k -k 51"
+        User time (seconds): 246.20
+        System time (seconds): 14.10
+        Percent of CPU this job got: 5606%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 0:04.64
+        Average shared text size (kbytes): 0
+        Average unshared data size (kbytes): 0
+        Average stack size (kbytes): 0
+        Average total size (kbytes): 0
+        Maximum resident set size (kbytes): 2183840
+        Average resident set size (kbytes): 0
+        Major (requiring I/O) page faults: 0
+        Minor (reclaiming a frame) page faults: 813655
+        Voluntary context switches: 431646
+        Involuntary context switches: 770
+        Swaps: 0
+        File system inputs: 0
+        File system outputs: 0
         Socket messages sent: 0
         Socket messages received: 0
         Signals delivered: 0
