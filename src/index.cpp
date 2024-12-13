@@ -16,6 +16,7 @@ struct Arguments {
     string index_directory_name;
     int number_of_threads;
     int num_hashtables;
+    bool force_write;
 };
 
 
@@ -49,6 +50,12 @@ void parse_args(int argc, char** argv, Arguments &arguments) {
         .default_value(4096)
         .store_into(arguments.num_hashtables);
 
+    parser.add_argument("-f", "--force")
+        .help("Force write the index to file")
+        .default_value(false)
+        .implicit_value(true)
+        .store_into(arguments.force_write);
+
     try {
         parser.parse_args(argc, argv);
     } catch (const std::runtime_error &err) {
@@ -68,6 +75,7 @@ void show_arguments(Arguments &arguments) {
     cout << "*  index_directory_name: " << arguments.index_directory_name << endl;
     cout << "*  number_of_threads: " << arguments.number_of_threads << endl;
     cout << "*  num_hashtables: " << arguments.num_hashtables << endl;
+    cout << "*  force_write: " << arguments.force_write << endl;
     cout << "* " << endl;
     cout << "*********************************" << endl;
 }

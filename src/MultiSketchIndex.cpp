@@ -122,7 +122,8 @@ void MultiSketchIndex::write_one_chunk(std::string filename, int start_index, in
 bool MultiSketchIndex::write_to_file(std::string directory_name, 
                                     int num_threads, 
                                     std::vector<std::string> genome_names,
-                                    std::vector<size_t> sketch_sizes) {
+                                    std::vector<size_t> sketch_sizes,
+                                    bool force_write) {
     // check if the number of genomes and sketch sizes are the same
     if (genome_names.size() != sketch_sizes.size()) {
         std::cout << "Error: Number of genomes and sketch sizes are not the same." << std::endl;
@@ -155,10 +156,14 @@ bool MultiSketchIndex::write_to_file(std::string directory_name,
     if (!is_empty) {
         std::cout << "Error: Directory is not empty." << std::endl;
         std::cout << "Continue anyway? (type y/n): ";
-        char response;
-        std::cin >> response;
-        if (response != 'y') {
-            return false;
+        if (force_write) {
+            std::cout << "writing anyway (force)." << std::endl;
+        } else {
+            char response;
+            std::cin >> response;
+            if (response != 'y') {
+                return false;
+            }
         }
     }
 

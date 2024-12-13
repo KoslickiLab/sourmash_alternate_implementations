@@ -114,7 +114,8 @@ class MultiSketchIndex {
         bool write_to_file(std::string directory_name, 
                                     int num_threads, 
                                     std::vector<std::string> genome_names,
-                                    std::vector<size_t> sketch_sizes);
+                                    std::vector<size_t> sketch_sizes,
+                                    bool force_write);
 
         /**
          * @brief load an index from a file.
