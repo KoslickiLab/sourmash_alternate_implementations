@@ -197,9 +197,9 @@ void do_gather(Arguments& args) {
         double f_orig_query = get<5>(result);
         double f_match = get<6>(result);
 
-        string file_path = ref_sketches[sketch_index].file_path;
-        string name = ref_sketches[sketch_index].name;
-        string md5 = ref_sketches[sketch_index].md5;
+        string file_path = ref_sketches[sketch_index].info.file_path;
+        string name = ref_sketches[sketch_index].info.name;
+        string md5 = ref_sketches[sketch_index].info.md5;
         
         output_file << num_overlap_orig << "," << num_overlap << "," 
                     << f_orig_query << "," << f_match << "," 

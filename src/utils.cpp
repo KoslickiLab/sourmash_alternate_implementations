@@ -268,10 +268,10 @@ void compute_intersection_matrix_by_sketches(int query_sketch_start_index, int q
                 continue;
             }
 
-            std::string query_name = sketches_query[i].name;
-            std::string ref_name = sketches_ref[j].name;
-            std::string query_md5 = sketches_query[i].md5;
-            std::string ref_md5 = sketches_ref[j].md5;
+            std::string query_name = sketches_query[i].info.name;
+            std::string ref_name = sketches_ref[j].info.name;
+            std::string query_md5 = sketches_query[i].info.md5;
+            std::string ref_md5 = sketches_ref[j].info.md5;
             double max_containment = std::max(containment_i_in_j, containment_j_in_i);
             double max_containment_ani = pow(max_containment, 1.0/ksize);
 

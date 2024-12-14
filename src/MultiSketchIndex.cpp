@@ -121,15 +121,8 @@ void MultiSketchIndex::write_one_chunk(std::string filename, int start_index, in
 
 bool MultiSketchIndex::write_to_file(std::string directory_name, 
                                     int num_threads, 
-                                    std::vector<std::string> genome_names,
-                                    std::vector<size_t> sketch_sizes,
+                                    std::vector<SketchInfo> info_of_sketches,
                                     bool force_write) {
-    // check if the number of genomes and sketch sizes are the same
-    if (genome_names.size() != sketch_sizes.size()) {
-        std::cout << "Error: Number of genomes and sketch sizes are not the same." << std::endl;
-        return false;
-    }                                    
-
     // check if the directory exists, if not then create it
     struct stat info;
     if (stat(directory_name.c_str(), &info) != 0) {
@@ -190,19 +183,16 @@ bool MultiSketchIndex::write_to_file(std::string directory_name,
     std::ofstream output_file(filename);
     // num of files
     output_file << files_written.size() << std::endl;
-    // individual file names
+    // individual file names (of the chunks)
     for (int i = 0; i < num_threads; i++) {
         output_file << files_written[i] << std::endl;
     }
-    // num of genomes
-    output_file << genome_names.size() << std::endl;
-    // genome names
-    for (size_t i = 0; i < genome_names.size(); i++) {
-        output_file << genome_names[i] << std::endl;
-    }
-    // sketch sizes
-    for (size_t i = 0; i < sketch_sizes.size(); i++) {
-        output_file << sketch_sizes[i] << std::endl;
+    // num of genomes/sketches
+    output_file << info_of_sketches.size() << std::endl;
+    
+    // next, one by one, write the info of the sketches
+    for (int i = 0; i < info_of_sketches.size(); i++) {
+        output_file << info_of_sketches[i].get_str_representation() << std::endl;
     }
 
     return true;
@@ -231,7 +221,7 @@ void MultiSketchIndex::load_one_chunk(std::string filename) {
 
 
 
-std::pair<std::vector<std::string>, std::vector<size_t>> MultiSketchIndex::load_from_file(std::string directory_name){
+std::vector<SketchInfo> MultiSketchIndex::load_from_file(std::string directory_name){
     // Load an index from a file
     std::string summary_filename = directory_name + "/summary";
     std::ifstream summary_file(summary_filename);   
@@ -256,33 +246,45 @@ std::pair<std::vector<std::string>, std::vector<size_t>> MultiSketchIndex::load_
     // read the number of genomes
     int num_genomes;
     summary_file >> num_genomes;
-
-    std::vector<std::string> genome_names;
+    std::vector<SketchInfo> info_of_sketches;
     for (int i = 0; i < num_genomes; i++) {
-        std::string genome_name;
-        // read the entire line
+        SketchInfo info;
+        std::string file_path;
+        std::string name;
+        std::string md5;
+        int ksize;
+        hash_t max_hash;
+        int seed;
+
+        // read one line as file path
         summary_file >> std::ws;
-        std::getline(summary_file, genome_name);
-        genome_names.push_back(genome_name);
+        std::getline(summary_file, file_path);
+
+        // read one line as name
+        summary_file >> std::ws;
+        std::getline(summary_file, name);
+
+        // read the rest of the info
+        summary_file >> md5 >> ksize >> max_hash >> seed;
+
+        info = SketchInfo(file_path, name, md5, ksize, max_hash, seed);
+        info_of_sketches.push_back(info);
     }
 
-    std::vector<size_t> sketch_sizes;
-    for (int i = 0; i < num_genomes; i++) {
-        size_t sketch_size;
-        summary_file >> sketch_size;
-        sketch_sizes.push_back(sketch_size);
-    }
+    summary_file.close();
 
+    // now load the individual files
     std::vector<std::thread> threads;
     for (int i = 0; i < num_files; i++) {
         threads.push_back(std::thread(&MultiSketchIndex::load_one_chunk, this, files_to_read[i]));
     }
 
+    // wait for all the threads to finish
     for (int i = 0; i < num_files; i++) {
         threads[i].join();
     }
 
-    return std::make_pair(genome_names, sketch_sizes);
+    return info_of_sketches;
 
 }
 

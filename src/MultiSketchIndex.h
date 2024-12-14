@@ -12,6 +12,8 @@
 
 #include <fstream>
 
+#include "SketchInfo.h"
+
 
 #ifndef HASH_T
 #define HASH_T
@@ -100,21 +102,18 @@ class MultiSketchIndex {
         }
 
         /**
-         * @brief write index to file. Assumptions, the genome names are given correctly,
-         * and the sketch sizes are given correctly. Also assuming that the number of genomes and
-         * the number of sketch sizes are the same.
+         * @brief write index to file. Assumptions: the info are provided
+         * correctly
          * 
          * @param directory_name where the index will be written
          * @param num_threads number of threads to use
-         * @param genome_names names of the genomes
-         * @param sketch_sizes sizes of the sketches
+         * @param info_of_sketches info of all the sketches
          * @return true if the index is written successfully
          * @return false if the index is not written successfully
          */
         bool write_to_file(std::string directory_name, 
                                     int num_threads, 
-                                    std::vector<std::string> genome_names,
-                                    std::vector<size_t> sketch_sizes,
+                                    std::vector<SketchInfo> info_of_sketches,
                                     bool force_write);
 
         /**
@@ -123,7 +122,7 @@ class MultiSketchIndex {
          * @param directory_name the directory where the index is stored.
          * @return std::pair<std::vector<std::string>, std::vector<size_t>> genome names vector and sketch sizes vector
          */
-        std::pair<std::vector<std::string>, std::vector<size_t>> load_from_file(std::string directory_name);
+        std::vector<SketchInfo> load_from_file(std::string directory_name);
 
 
 
