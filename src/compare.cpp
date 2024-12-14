@@ -62,32 +62,6 @@ void do_compare(Arguments& args) {
     auto target_duration = chrono::duration_cast<chrono::seconds>(target_end - target_start);
     cout << "Target index loaded in " << target_duration.count() << " seconds." << endl;
 
-
-    // **** DEBUG *****
-
-    // check the first sketch, and see if that sketch indeed is in the index
-    Sketch first_query_sketch = query_sketches[0];
-    vector<hash_t> query_hashes = first_query_sketch.hashes;
-    cout << "First query sketch has " << query_hashes.size() << " hashes." << endl;
-    int count = 0;
-    for (hash_t hash : query_hashes) {
-        if (target_sketch_index.hash_exists(hash)) {
-            count++;
-        }
-    }
-    cout << "Number of hashes in the first query sketch that are in the index: " << count << endl;
-
-
-    // show size of first sketch, and size of the first target sketch
-    cout << "Size of the first query sketch: " << first_query_sketch.size() << endl;
-    cout << "Size of the first target sketch: " << info_of_target_sketches[0].size() << endl;
-
-
-
-    // **** DEBUG END ****
-
-
-
     // Compute all v all containment values
     cout << "Computing all v all containment values..." << endl;
     vector<vector<int>> similars;
