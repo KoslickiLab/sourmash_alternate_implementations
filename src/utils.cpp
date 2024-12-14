@@ -337,6 +337,9 @@ void compute_intersection_matrix(std::vector<Sketch>& sketches_query,
         int sketch_idx_end_this_pass = (pass_id == num_passes - 1) ? num_sketches_query : (pass_id + 1) * num_query_sketches_each_pass;
         int negative_offset = pass_id * num_query_sketches_each_pass;
         int num_query_sketches_this_pass = sketch_idx_end_this_pass - sketch_idx_start_this_pass;
+
+        // use less threads if the number of threads is larger than the number of sketches
+        int num_threads_to_use = std::min(num_threads, (int)sketches_query.size());
         
         // create threads
         std::vector<std::thread> threads;
