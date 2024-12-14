@@ -150,14 +150,14 @@ class MultiSketchIndex {
                     }
 
                     // create a sorted version of the sketch indices
-                    std::vector<int> sketch_indices = sketch_indices;
-                    std::sort(sketch_indices.begin(), sketch_indices.end());
-                    std::vector<int> other_sketch_indices = other_sketch_indices;
-                    std::sort(other_sketch_indices.begin(), other_sketch_indices.end());
+                    std::vector<int> sketch_indices_ = sketch_indices;
+                    std::sort(sketch_indices_.begin(), sketch_indices_.end());
+                    std::vector<int> other_sketch_indices_ = other_sketch_indices;
+                    std::sort(other_sketch_indices_.begin(), other_sketch_indices_.end());
 
                     // check if set of sketch indices are the same
-                    for (int j = 0; j < sketch_indices.size(); j++) {
-                        if (sketch_indices[j] != other_sketch_indices[j]) {
+                    for (int j = 0; j < sketch_indices_.size(); j++) {
+                        if (sketch_indices_[j] != other_sketch_indices_[j]) {
                             return false;
                         }
                     }
