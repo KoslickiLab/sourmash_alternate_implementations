@@ -75,34 +75,6 @@ void do_compare(Arguments& args) {
         cout << "The index built from the query sketches is the same as the target index." << endl;
     } else {
         cerr << "The index built from the query sketches is not the same as the target index." << endl;
-
-        // show the size of the index
-        cout << "Size of the index built from the query sketches: " << multi_sketch_index_temp.size() << endl;
-        cout << "Size of the target index: " << target_sketch_index.size() << endl;
-
-        // iterate over all the hash values, and check when the discrepancy occurs
-        auto all_hashes_in_target = target_sketch_index.get_all_hashes();
-        for (hash_t hash_value : all_hashes_in_target) {
-            if (!multi_sketch_index_temp.hash_exists(hash_value)) {
-                cout << "Hash value " << hash_value << " is not present in the index built from the query sketches." << endl;
-            }
-            vector<int> sketch_indices_target = target_sketch_index.get_sketch_indices(hash_value);
-            vector<int> sketch_indices_query = multi_sketch_index_temp.get_sketch_indices(hash_value);
-            if (sketch_indices_target != sketch_indices_query) {
-                cout << "Sketch indices for hash value " << hash_value << " are not the same." << endl;
-                cout << "Sketch indices in the target index: ";
-                for (int i : sketch_indices_target) {
-                    cout << i << " ";
-                }
-                cout << endl;
-                cout << "Sketch indices in the index built from the query sketches: ";
-                for (int i : sketch_indices_query) {
-                    cout << i << " ";
-                }
-                cout << endl;
-            }
-        }           
-
         exit(1);
     }
 
@@ -113,7 +85,7 @@ void do_compare(Arguments& args) {
     auto start_compute = chrono::high_resolution_clock::now();
     compute_intersection_matrix(query_sketches, 
                                 info_of_target_sketches, 
-                                target_sketch_index, 
+                                multi_sketch_index_temp, 
                                 args.working_dir, 
                                 similars, 
                                 args.containment_threshold, 
