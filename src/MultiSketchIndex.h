@@ -160,6 +160,17 @@ class MultiSketchIndex {
             return true;
         }
 
+
+        std::vector<hash_t> get_all_hashes() {
+            std::vector<hash_t> all_hashes;
+            for (int i = 0; i < num_of_indices; i++) {
+                for (auto const& [hash_value, sketch_indices] : multiple_sketch_indices[i]) {
+                    all_hashes.push_back(hash_value);
+                }
+            }
+            return all_hashes;
+        }
+
         
     private:
         std::vector<std::unordered_map<hash_t, std::vector<int>>> multiple_sketch_indices;
