@@ -18,7 +18,7 @@ using json = nlohmann::json;
 
 struct Arguments {
     string filelist_queries;
-    string target_index_directory_name;
+    string filelist_targets;
     string working_dir;
     string output_filename;
     double containment_threshold;
