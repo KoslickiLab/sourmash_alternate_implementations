@@ -23,7 +23,7 @@ class Sketch {
 
         Sketch(std::vector<hash_t> hashes, std::string file_path, std::string name, std::string md5, int ksize, hash_t max_hash, int seed) {
             this->hashes = hashes;
-            this->info = SketchInfo(file_path, name, md5, ksize, max_hash, seed);
+            this->info = SketchInfo(file_path, name, md5, ksize, max_hash, seed, hashes.size());
         }
 
         Sketch() {
