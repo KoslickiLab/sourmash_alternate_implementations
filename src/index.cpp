@@ -164,6 +164,8 @@ int main(int argc, char** argv) {
         cout << "Error: The loaded index is not the same as the original one." << endl;
         exit(1);
     }
+
+    cout << "All tests passed." << endl;
     
     exit(0);
 
