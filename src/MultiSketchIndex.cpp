@@ -255,6 +255,7 @@ std::vector<SketchInfo> MultiSketchIndex::load_from_file(std::string directory_n
         int ksize;
         hash_t max_hash;
         int seed;
+        int sketch_size;
 
         // read one line as file path
         summary_file >> std::ws;
@@ -265,9 +266,9 @@ std::vector<SketchInfo> MultiSketchIndex::load_from_file(std::string directory_n
         std::getline(summary_file, name);
 
         // read the rest of the info
-        summary_file >> md5 >> ksize >> max_hash >> seed;
+        summary_file >> md5 >> ksize >> max_hash >> seed >> sketch_size;
 
-        info = SketchInfo(file_path, name, md5, ksize, max_hash, seed);
+        info = SketchInfo(file_path, name, md5, ksize, max_hash, seed, sketch_size);
         info_of_sketches.push_back(info);
     }
 

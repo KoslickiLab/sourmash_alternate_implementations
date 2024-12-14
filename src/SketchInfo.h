@@ -24,14 +24,16 @@ public:
     int ksize;
     hash_t max_hash;
     int seed;
+    int sketch_size;
 
-    SketchInfo(std::string file_path, std::string name, std::string md5, int ksize, hash_t max_hash, int seed) {
+    SketchInfo(std::string file_path, std::string name, std::string md5, int ksize, hash_t max_hash, int seed, int sketch_size) {
         this->file_path = file_path;
         this->name = name;
         this->md5 = md5;
         this->ksize = ksize;
         this->max_hash = max_hash;
         this->seed = seed;
+        this->sketch_size = sketch_size;
     }
 
     SketchInfo() {
@@ -41,6 +43,7 @@ public:
         this->ksize = 0;
         this->max_hash = 0;
         this->seed = 0;
+        this->sketch_size = 0;
     }
 
     // copy constructor
@@ -51,6 +54,7 @@ public:
         this->ksize = info.ksize;
         this->max_hash = info.max_hash;
         this->seed = info.seed;
+        this->sketch_size = info.sketch_size;
     }
 
     // destructor
@@ -63,6 +67,7 @@ public:
         std::cout << "ksize: " << this->ksize << std::endl;
         std::cout << "max_hash: " << this->max_hash << std::endl;
         std::cout << "seed: " << this->seed << std::endl;
+        std::cout << "sketch_size: " << this->sketch_size << std::endl;
     }
 
     bool operator==(const SketchInfo &other) {
@@ -84,7 +89,17 @@ public:
      * @return std::string 
      */
     std::string get_str_representation() {
-        return this->file_path + "\n" + this->name + "\n" + this->md5 + "\n" + std::to_string(this->ksize) + "\n" + std::to_string(this->max_hash) + "\n" + std::to_string(this->seed);
+        return this->file_path + "\n" + this->name + "\n" + this->md5 + "\n" + std::to_string(this->ksize) + "\n" + std::to_string(this->max_hash) + "\n" + std::to_string(this->seed) + "\n" + std::to_string(this->sketch_size);
+    }
+
+
+    /**
+     * @brief Get the sketch size
+     * 
+     * @return int 
+     */
+    int size() {
+        return this->sketch_size;   
     }
 
 };
