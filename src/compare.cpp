@@ -78,6 +78,11 @@ void do_compare(Arguments& args) {
     cout << "Number of hashes in the first query sketch that are in the index: " << count << endl;
 
 
+    // show size of first sketch, and size of the first target sketch
+    cout << "Size of the first query sketch: " << first_query_sketch.size() << endl;
+    cout << "Size of the first target sketch: " << info_of_target_sketches[0].size() << endl;
+
+
 
     // **** DEBUG END ****
 
