@@ -340,6 +340,7 @@ void compute_intersection_matrix(std::vector<Sketch>& sketches_query,
 
         // use less threads if the number of threads is larger than the number of sketches
         int num_threads_to_use = std::min(num_threads, (int)sketches_query.size());
+        std::cout << "Using " << num_threads_to_use << " threads for pass " << pass_id+1 << "/" << num_passes << std::endl;
         
         // create threads
         std::vector<std::thread> threads;
