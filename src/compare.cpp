@@ -86,6 +86,21 @@ void do_compare(Arguments& args) {
             if (!multi_sketch_index_temp.hash_exists(hash_value)) {
                 cout << "Hash value " << hash_value << " is not present in the index built from the query sketches." << endl;
             }
+            vector<int> sketch_indices_target = target_sketch_index.get_sketch_indices(hash_value);
+            vector<int> sketch_indices_query = multi_sketch_index_temp.get_sketch_indices(hash_value);
+            if (sketch_indices_target != sketch_indices_query) {
+                cout << "Sketch indices for hash value " << hash_value << " are not the same." << endl;
+                cout << "Sketch indices in the target index: ";
+                for (int i : sketch_indices_target) {
+                    cout << i << " ";
+                }
+                cout << endl;
+                cout << "Sketch indices in the index built from the query sketches: ";
+                for (int i : sketch_indices_query) {
+                    cout << i << " ";
+                }
+                cout << endl;
+            }
         }           
 
         exit(1);
