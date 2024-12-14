@@ -124,9 +124,9 @@ int main(int argc, char** argv) {
     cout << "Index written to file." << endl;
 
     // make the program exit faster using exit(0)
-    //exit(0);
+    exit(0);
 
-
+    /*
     
     // following code is for testing the load_from_file function
     cout << "Loading index from file..." << endl;
@@ -168,5 +168,7 @@ int main(int argc, char** argv) {
     cout << "All tests passed." << endl;
     
     exit(0);
+
+    */
 
 }
