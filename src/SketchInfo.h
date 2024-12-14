@@ -7,6 +7,8 @@ typedef unsigned long long int hash_t;
 #define SKETCHINFO_H
 
 #include <string>
+#include <iostream>
+
 
 /**
  * @brief Info of a sketch, does not contain the actual min-hashes
