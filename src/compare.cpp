@@ -63,6 +63,22 @@ void do_compare(Arguments& args) {
     auto target_duration = chrono::duration_cast<chrono::seconds>(target_end - target_start);
     cout << "Target index loaded in " << target_duration.count() << " seconds." << endl;
 
+
+    // build the index for the query sketches
+    cout << "Building index for the query sketches..." << endl;
+    auto build_start = chrono::high_resolution_clock::now();
+    MultiSketchIndex multi_sketch_index_temp(args.num_hashtables);
+    compute_index_from_sketches(query_sketches, multi_sketch_index_temp, args.number_of_threads);
+
+    // check that this index is the same as the target index
+    if (multi_sketch_index_temp == target_sketch_index) {
+        cout << "The index built from the query sketches is the same as the target index." << endl;
+    } else {
+        cerr << "The index built from the query sketches is not the same as the target index." << endl;
+        exit(1);
+    }
+
+
     // Compute all v all containment values
     cout << "Computing all v all containment values..." << endl;
     vector<vector<int>> similars;
