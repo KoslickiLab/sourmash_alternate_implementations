@@ -121,7 +121,7 @@ void show_empty_sketches(const std::vector<int>&);
  */
 
 void compute_intersection_matrix(std::vector<Sketch>& sketches_query,
-                                std::vector<Sketch>& sketches_ref, 
+                                std::vector<SketchInfo>& info_of_ref_sketches, 
                                 MultiSketchIndex& multi_sketch_index_ref,
                                 std::string& out_dir, 
                                 std::vector<std::vector<int>>& similars,

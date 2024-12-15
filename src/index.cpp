@@ -108,17 +108,14 @@ int main(int argc, char** argv) {
 
 
     cout << "Writing index to file..." << endl;
-    std::vector<std::string> genome_names;
-    std::vector<size_t> sketch_sizes;
+    vector<SketchInfo> info_of_sketches;
     for (auto &sketch : sketches) {
-        genome_names.push_back(sketch.name);
-        sketch_sizes.push_back(sketch.size());
+        info_of_sketches.push_back(sketch.info);
     }
 
     bool success = multi_sketch_index.write_to_file(arguments.index_directory_name, 
                                             arguments.number_of_threads, 
-                                            genome_names, 
-                                            sketch_sizes,
+                                            info_of_sketches,
                                             arguments.force_write);
     if (!success) {
         cout << "Error writing index to file." << endl;
@@ -126,48 +123,52 @@ int main(int argc, char** argv) {
     }
     cout << "Index written to file." << endl;
 
-    exit(0);
-    return 0;
-
     // make the program exit faster using exit(0)
+    exit(0);
 
     /*
+    
     // following code is for testing the load_from_file function
     cout << "Loading index from file..." << endl;
     MultiSketchIndex loaded_index(arguments.num_hashtables);
-    auto [loaded_genome_names, loaded_sketch_sizes] = loaded_index.load_from_file(arguments.index_directory_name);
+    auto loaded_sketch_info = loaded_index.load_from_file(arguments.index_directory_name);
 
-    int num_genomes = genome_names.size();
-    int num_sketches = sketch_sizes.size();
-    int num_genomes_loaded = loaded_genome_names.size();
-    int num_sketches_loaded = loaded_sketch_sizes.size();
+    int num_sketches = sketches.size();
+    int num_loaded_sketches = loaded_sketch_info.size();
 
-    cout << "Number of genomes: " << num_genomes << endl;
-    cout << "Number of sketches: " << num_sketches << endl;
-    cout << "Number of genomes loaded: " << num_genomes_loaded << endl;
-    cout << "Number of sketches loaded: " << num_sketches_loaded << endl;
-
-    // check if the loaded genome names and sketch sizes are the same as the original ones
-    if (genome_names.size() != loaded_genome_names.size() || sketch_sizes.size() != loaded_sketch_sizes.size()) {
-        cout << "Error: The loaded genome names or sketch sizes are not the same as the original ones." << endl;
+    // check if the number of sketches is the same
+    if (num_sketches != num_loaded_sketches) {
+        cout << "Error: The number of sketches is not the same." << endl;
+        cout << "Original: " << num_sketches << endl;
+        cout << "Loaded: " << num_loaded_sketches << endl;
         exit(1);
     }
 
-    for (int i = 0; i < genome_names.size(); i++) {
-        if (genome_names[i] != loaded_genome_names[i] || sketch_sizes[i] != loaded_sketch_sizes[i]) {
-            cout << "Error: The loaded genome names or sketch sizes are not the same as the original ones." << endl;
-            cout << "Original: " << genome_names[i] << " " << sketch_sizes[i] << endl;
-            cout << "Loaded: " << loaded_genome_names[i] << " " << loaded_sketch_sizes[i] << endl;
+    // now assert that the sketch info are the same
+    for (int i = 0; i < num_sketches; i++) {
+        if (sketches[i].info != loaded_sketch_info[i]) {
+            cout << "Error: The sketch info is not the same." << endl;
+            // show the sketch info
+            cout << "Original:" << endl;
+            sketches[i].info.show();
+            cout << "Loaded:" << endl;
+            loaded_sketch_info[i].show();
             exit(1);
         }
     }
 
+    // finally, check if the index is the same
     if (multi_sketch_index == loaded_index) {
         cout << "Index loaded successfully." << endl;
     } else {
         cout << "Error: The loaded index is not the same as the original one." << endl;
         exit(1);
     }
+
+    cout << "All tests passed." << endl;
+    
+    exit(0);
+
     */
 
 }

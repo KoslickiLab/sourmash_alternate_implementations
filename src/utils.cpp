@@ -186,7 +186,7 @@ void compute_intersection_matrix_by_sketches(int query_sketch_start_index, int q
                                             int thread_id, std::string out_dir, 
                                             int pass_id, int negative_offset,
                                             std::vector<Sketch>& sketches_query,
-                                            std::vector<Sketch>& sketches_ref,
+                                            std::vector<SketchInfo>& info_of_ref_sketches,
                                             MultiSketchIndex& multi_sketch_index_ref,
                                             int** intersectionMatrix, 
                                             double containment_threshold,
@@ -194,7 +194,7 @@ void compute_intersection_matrix_by_sketches(int query_sketch_start_index, int q
                                             bool show_progress,
                                             int ksize) {
     
-    const int num_sketches_ref = sketches_ref.size();
+    const int num_sketches_ref = info_of_ref_sketches.size();
     const int num_sketches_query = sketches_query.size();
 
     // process the sketches in the range [sketch_start_index, sketch_end_index)
@@ -250,28 +250,28 @@ void compute_intersection_matrix_by_sketches(int query_sketch_start_index, int q
             }
 
             // if either of the sketches is empty, then skip
-            if (sketches_query[i].size() == 0 || sketches_ref[j].size() == 0) {
+            if (sketches_query[i].size() == 0 || info_of_ref_sketches[j].size() == 0) {
                 continue;
             }
 
             // if the divisor in the jaccard calculation is 0, then skip
-            if (sketches_query[i].size() + sketches_ref[j].size() - intersectionMatrix[i-negative_offset][j] == 0) {
+            if (sketches_query[i].size() + info_of_ref_sketches[j].size() - intersectionMatrix[i-negative_offset][j] == 0) {
                 continue;
             }
 
-            double jaccard = 1.0 * intersectionMatrix[i-negative_offset][j] / ( sketches_query[i].size() + sketches_ref[j].size() - intersectionMatrix[i-negative_offset][j] );
+            double jaccard = 1.0 * intersectionMatrix[i-negative_offset][j] / ( sketches_query[i].size() + info_of_ref_sketches[j].size() - intersectionMatrix[i-negative_offset][j] );
             double containment_i_in_j = 1.0 * intersectionMatrix[i-negative_offset][j] / sketches_query[i].size();
-            double containment_j_in_i = 1.0 * intersectionMatrix[i-negative_offset][j] / sketches_ref[j].size();
+            double containment_j_in_i = 1.0 * intersectionMatrix[i-negative_offset][j] / info_of_ref_sketches[j].size();
             
             // containment_i_in_j is the containment of query in target, i is the query
             if (containment_i_in_j <= containment_threshold) {
                 continue;
             }
 
-            std::string query_name = sketches_query[i].name;
-            std::string ref_name = sketches_ref[j].name;
-            std::string query_md5 = sketches_query[i].md5;
-            std::string ref_md5 = sketches_ref[j].md5;
+            std::string query_name = sketches_query[i].info.name;
+            std::string ref_name = info_of_ref_sketches[j].name;
+            std::string query_md5 = sketches_query[i].info.md5;
+            std::string ref_md5 = info_of_ref_sketches[j].md5;
             double max_containment = std::max(containment_i_in_j, containment_j_in_i);
             double max_containment_ani = pow(max_containment, 1.0/ksize);
 
@@ -299,7 +299,7 @@ void compute_intersection_matrix_by_sketches(int query_sketch_start_index, int q
 
 
 void compute_intersection_matrix(std::vector<Sketch>& sketches_query,
-                                std::vector<Sketch>& sketches_ref, 
+                                std::vector<SketchInfo>& info_of_ref_sketches, 
                                 MultiSketchIndex& multi_sketch_index_ref,
                                 std::string& out_dir, 
                                 std::vector<std::vector<int>>& similars,
@@ -308,7 +308,7 @@ void compute_intersection_matrix(std::vector<Sketch>& sketches_query,
                                 int ksize) {
     
     int num_sketches_query = sketches_query.size();
-    int num_sketches_ref = sketches_ref.size();
+    int num_sketches_ref = info_of_ref_sketches.size();
 
     // allocate memory for the intersection matrix
     int num_query_sketches_each_pass = ceil(1.0 * num_sketches_query / num_passes);
@@ -337,6 +337,10 @@ void compute_intersection_matrix(std::vector<Sketch>& sketches_query,
         int sketch_idx_end_this_pass = (pass_id == num_passes - 1) ? num_sketches_query : (pass_id + 1) * num_query_sketches_each_pass;
         int negative_offset = pass_id * num_query_sketches_each_pass;
         int num_query_sketches_this_pass = sketch_idx_end_this_pass - sketch_idx_start_this_pass;
+
+        // use less threads if the number of threads is larger than the number of sketches
+        int num_threads_to_use = std::min(num_threads, (int)sketches_query.size());
+        std::cout << "Using " << num_threads_to_use << " threads for pass " << pass_id+1 << "/" << num_passes << std::endl;
         
         // create threads
         std::vector<std::thread> threads;
@@ -348,7 +352,7 @@ void compute_intersection_matrix(std::vector<Sketch>& sketches_query,
             std::thread t(compute_intersection_matrix_by_sketches, 
                             start_query_index_this_thread, end_query_index_this_thread, 
                             i, out_dir, pass_id, negative_offset,
-                            std::ref(sketches_query), std::ref(sketches_ref), 
+                            std::ref(sketches_query), std::ref(info_of_ref_sketches), 
                             std::ref(multi_sketch_index_ref), 
                             intersectionMatrix, containment_threshold, 
                             std::ref(similars), i == num_threads - 1, ksize);

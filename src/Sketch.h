@@ -1,11 +1,11 @@
 // a sketch is a vector of hash_t, sorted in ascending order
 // other attributes are: file path, and name
 
+#include "SketchInfo.h"
 
 # include <iostream>
 # include <vector>
 # include <string>
-
 
 #ifndef HASH_T
 #define HASH_T
@@ -19,43 +19,22 @@ typedef unsigned long long int hash_t;
 class Sketch {
     public:
         std::vector<hash_t> hashes;
-        std::string file_path;
-        std::string name;
-        std::string md5;
-        int ksize;
-        hash_t max_hash;
-        int seed;
-
+        SketchInfo info;
 
         Sketch(std::vector<hash_t> hashes, std::string file_path, std::string name, std::string md5, int ksize, hash_t max_hash, int seed) {
             this->hashes = hashes;
-            this->file_path = file_path;
-            this->name = name;
-            this->md5 = md5;
-            this->ksize = ksize;
-            this->max_hash = max_hash;
-            this->seed = seed;
+            this->info = SketchInfo(file_path, name, md5, ksize, max_hash, seed, hashes.size());
         }
 
         Sketch() {
             this->hashes = std::vector<hash_t>();
-            this->file_path = "";
-            this->name = "";
-            this->md5 = "";
-            this->ksize = 0;
-            this->max_hash = 0;
-            this->seed = 0;
+            this->info = SketchInfo();
         }
 
         // copy constructor
         Sketch(const Sketch& sketch) {
             this->hashes = sketch.hashes;
-            this->file_path = sketch.file_path;
-            this->name = sketch.name;
-            this->md5 = sketch.md5;
-            this->ksize = sketch.ksize;
-            this->max_hash = sketch.max_hash;
-            this->seed = sketch.seed;
+            this->info = SketchInfo(sketch.info);
         }
 
         // destructor
