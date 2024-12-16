@@ -26,3 +26,11 @@ All tool usages are available using `--help` flag.
 7. Jaccard
 8. Containment(query, target)
 9. Containment(target, query)
+
+
+# Testing
+Test scripts are available in the `test` directory. These tests are written in python.
+To install the dependencies required by the test scripts, do the following:
+```
+conda create --name <env_name> --file test/requirements.txt
+```
