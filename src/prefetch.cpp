@@ -56,7 +56,11 @@ void do_prefetch(Arguments& args) {
     auto read_start = chrono::high_resolution_clock::now();
     cout << "Reading all reference sketches and the query sketch using " << args.number_of_threads << " threads" << endl;
     query_sketch = read_min_hashes(args.query_path);
-    get_sketch_paths(args.ref_filelist, ref_sketch_paths);
+    bool success = get_sketch_paths(args.ref_filelist, ref_sketch_paths);
+    if (!success) {
+        cerr << "Error in reading the reference sketch paths." << endl;
+        exit(1);
+    }
     read_sketches(ref_sketch_paths, ref_sketches, empty_sketch_ids, args.number_of_threads);
     
     // read complete, show time taken

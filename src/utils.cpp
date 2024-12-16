@@ -101,17 +101,19 @@ void compute_index_from_sketches(std::vector<Sketch>& sketches,
 
 
 
-void get_sketch_paths(const std::string& filelist, std::vector<std::string>& sketch_paths) {
+bool get_sketch_paths(const std::string& filelist, std::vector<std::string>& sketch_paths) {
     // the filelist is a file, where each line is a path to a sketch file
     std::ifstream file(filelist);
     if (!file.is_open()) {
         std::cerr << "Could not open the filelist: " << filelist << std::endl;
-        return;
+        return false;
     }
     std::string line;
     while (std::getline(file, line)) {
         sketch_paths.push_back(line);
     }
+    file.close();
+    return true;
 }
 
 

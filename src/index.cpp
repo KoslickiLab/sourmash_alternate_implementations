@@ -90,7 +90,11 @@ int main(int argc, char** argv) {
 
     cout << "Reading sketch list..." << endl;
     vector<string> sketch_paths;
-    get_sketch_paths(arguments.filelist_sketches, sketch_paths);
+    bool success = get_sketch_paths(arguments.filelist_sketches, sketch_paths);
+    if (!success) {
+        cout << "Error reading the sketch paths." << endl;
+        exit(1);
+    }
     cout << "There are " << sketch_paths.size() << " sketches to read." << endl;
     cout << "Reading using " << arguments.number_of_threads << " threads..." << endl;
 
