@@ -128,8 +128,8 @@ bool MultiSketchIndex::write_to_file(std::string directory_name,
     if (stat(directory_name.c_str(), &info) != 0) {
         std::cout << "Error: Directory does not exist. Creating." << std::endl;
         std::string command = "mkdir -p " + directory_name;
-        bool success = system(command.c_str());
-        if (!success) {
+        int ret_code = system(command.c_str());
+        if (ret_code != 0) {
             std::cout << "Error: Could not create directory." << std::endl;
             return false;
         }
