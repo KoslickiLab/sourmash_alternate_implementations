@@ -61,12 +61,6 @@ def main():
                             loaded_index[min_hash] = []
                         loaded_index[min_hash].append(sketch_id)
 
-    # compare built index and loaded index
-    for min_hash in built_index:
-        built_index[min_hash].sort()
-    for min_hash in loaded_index:
-        loaded_index[min_hash].sort()
-
     error = False
     for min_hash in built_index:
         if min_hash not in loaded_index:
@@ -76,6 +70,16 @@ def main():
         for sketch_id in built_index[min_hash]:
             if sketch_id not in loaded_index[min_hash]:
                 print(f'Error: sketch {sketch_id} not found in loaded index for min_hash {min_hash}')
+                error = True
+
+    for min_hash in loaded_index:
+        if min_hash not in built_index:
+            print(f'Error: min_hash {min_hash} not found in built index')
+            error = True
+            continue
+        for sketch_id in loaded_index[min_hash]:
+            if sketch_id not in built_index[min_hash]:
+                print(f'Error: sketch {sketch_id} not found in built index for min_hash {min_hash}')
                 error = True
 
     if not error:
