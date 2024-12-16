@@ -51,6 +51,8 @@ def main():
                 # m * 32 bits: the ids of the sketches that have this minhash value
                 while True:
                     min_hash = f_index.read(8)
+                    if len(min_hash) == 0:
+                        break
                     min_hash = struct.unpack('Q', min_hash)[0]
                     num_sketches = int.from_bytes(f_index.read(4), byteorder='big')
                     for i in range(num_sketches):
