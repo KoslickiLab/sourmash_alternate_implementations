@@ -36,7 +36,7 @@ def main():
     loaded_index = {}
     # open index_directory/summary
     summary_filename = 'summary'
-    with open(f'{index_directory}/{summary_filename}', 'r') as f:
+    with open(f'{index_directory}/{summary_filename}', 'rb') as f:
         # open the file summary, this is a simple text file
         # first line is the number of individaul files = n
         # then follows n lines, each line is a separate text file
