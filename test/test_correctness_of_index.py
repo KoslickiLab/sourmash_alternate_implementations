@@ -54,9 +54,9 @@ def main():
                     if len(min_hash) == 0:
                         break
                     min_hash = struct.unpack('Q', min_hash)[0]
-                    num_sketches = int.from_bytes(f_index.read(4), byteorder='big')
+                    num_sketches = struct.unpack('i', f_index.read(4))[0]
                     for i in range(num_sketches):
-                        sketch_id = int.from_bytes(f_index.read(4), byteorder='big')
+                        sketch_id = struct.unpack('i', f_index.read(4))[0]
                         if min_hash not in loaded_index:
                             loaded_index[min_hash] = []
                         loaded_index[min_hash].append(sketch_id)
