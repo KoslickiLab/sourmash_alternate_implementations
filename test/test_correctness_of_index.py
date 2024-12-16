@@ -61,7 +61,13 @@ def main():
                         loaded_index[min_hash].append(sketch_id)
 
     # compare built index and loaded index
+    for min_hash in built_index:
+        built_index[min_hash].sort()
+    for min_hash in loaded_index:
+        loaded_index[min_hash].sort()
+
     assert built_index == loaded_index
+        
 
 
 if __name__ == '__main__':
