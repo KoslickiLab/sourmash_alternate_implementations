@@ -17,6 +17,7 @@ struct Arguments {
     int number_of_threads;
     int num_hashtables;
     bool force_write;
+    bool load_and_test;
 };
 
 
@@ -55,6 +56,12 @@ void parse_args(int argc, char** argv, Arguments &arguments) {
         .default_value(false)
         .implicit_value(true)
         .store_into(arguments.force_write);
+
+    parser.add_argument("-l", "--load-and-test")
+        .help("Load the index from file and test it")
+        .default_value(false)
+        .implicit_value(true)
+        .store_into(arguments.load_and_test);
 
     try {
         parser.parse_args(argc, argv);
@@ -127,10 +134,12 @@ int main(int argc, char** argv) {
     }
     cout << "Index written to file." << endl;
 
-    // make the program exit faster using exit(0)
-    exit(0);
+    
+    if (!arguments.load_and_test) {
+        cout << "Exiting..." << endl;
+        exit(0);
+    }
 
-    /*
     
     // following code is for testing the load_from_file function
     cout << "Loading index from file..." << endl;
@@ -171,8 +180,9 @@ int main(int argc, char** argv) {
 
     cout << "All tests passed." << endl;
     
+    // exit
     exit(0);
 
-    */
+    
 
 }
