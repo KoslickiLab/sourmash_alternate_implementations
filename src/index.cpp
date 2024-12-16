@@ -90,8 +90,8 @@ int main(int argc, char** argv) {
 
     cout << "Reading sketch list..." << endl;
     vector<string> sketch_paths;
-    bool success = get_sketch_paths(arguments.filelist_sketches, sketch_paths);
-    if (!success) {
+    bool success_read_filelist = get_sketch_paths(arguments.filelist_sketches, sketch_paths);
+    if (!success_read_filelist) {
         cout << "Error reading the sketch paths." << endl;
         exit(1);
     }
