@@ -36,14 +36,14 @@ def main():
     loaded_index = {}
     # open index_directory/summary
     summary_filename = 'summary'
-    with open(f'{index_directory}/{summary_filename}', 'rb') as f:
+    with open(f'{index_directory}/{summary_filename}', 'r') as f:
         # open the file summary, this is a simple text file
         # first line is the number of individaul files = n
         # then follows n lines, each line is a separate text file
         num_files = int(f.readline().strip())
         for i in range(num_files):
             line = f.readline().strip()
-            with open(line, 'r') as f:
+            with open(line, 'rb') as f:
                 # each line in this file is a binary file, the data is as follows:
                 # 64 bits: minhash value
                 # 32 bits: number of sketches that have this minhash value = m
