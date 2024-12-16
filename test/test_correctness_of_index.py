@@ -1,5 +1,6 @@
 import argparse
 import json
+import struct
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Test correctness of index.py')
@@ -45,14 +46,12 @@ def main():
             line = f_summary.readline().strip()
             with open(line, 'rb') as f_index:
                 # each line in this file is a binary file, the data is as follows:
-                # 64 bits: minhash value
+                # 64 bits: minhash value: unsigned long long
                 # 32 bits: number of sketches that have this minhash value = m
                 # m * 32 bits: the ids of the sketches that have this minhash value
                 while True:
                     min_hash = f_index.read(8)
-                    if not min_hash:
-                        break
-                    min_hash = int.from_bytes(min_hash, byteorder='big')
+                    min_hash = struct.unpack('Q', min_hash)[0]
                     num_sketches = int.from_bytes(f_index.read(4), byteorder='big')
                     for i in range(num_sketches):
                         sketch_id = int.from_bytes(f_index.read(4), byteorder='big')
