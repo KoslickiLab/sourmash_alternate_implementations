@@ -150,7 +150,7 @@ bool MultiSketchIndex::write_to_file(std::string directory_name,
         std::cout << "Error: Directory is not empty." << std::endl;
         std::cout << "Continue anyway? (type y/n): ";
         if (force_write) {
-            std::cout << "writing anyway (force)." << std::endl;
+            std::cout << "writing anyway (force-write enabled)." << std::endl;
         } else {
             char response;
             std::cin >> response;
@@ -166,13 +166,14 @@ bool MultiSketchIndex::write_to_file(std::string directory_name,
     for (int i = 0; i < num_threads; i++) {
         int start_index = i * chunk_size;
         int end_index = (i == num_threads - 1) ? num_of_indices : (i + 1) * chunk_size;
-        std::string filename_this_thread = directory_name + "/chunk_" + std::to_string(i);
+        std::string filename_only_no_path = "/chunk_" + std::to_string(i);
+        std::string filename_this_thread = directory_name + filename_only_no_path;
         threads.push_back(std::thread(&MultiSketchIndex::write_one_chunk, 
                             this, 
                             filename_this_thread, 
                             start_index, 
                             end_index));
-        files_written.push_back(filename_this_thread);
+        files_written.push_back(filename_only_no_path);
     }
 
     for (int i = 0; i < num_threads; i++) {
@@ -240,7 +241,8 @@ std::vector<SketchInfo> MultiSketchIndex::load_from_file(std::string directory_n
     for (int i = 0; i < num_files; i++) {
         std::string filename;
         summary_file >> filename;
-        files_to_read.push_back(filename);
+        std::string filename_with_path = directory_name + '/' + filename;
+        files_to_read.push_back(filename_with_path);
     }
 
     // read the number of genomes

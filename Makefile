@@ -50,4 +50,3 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 .PHONY: clean
 clean:
 	rm -f $(OBJ_DIR)/*.o $(BIN_DIR)/*
-	CXXFLAGS = -O3 -std=c++17

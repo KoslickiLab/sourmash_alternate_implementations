@@ -45,7 +45,11 @@ void do_compare(Arguments& args) {
     // Read the sketches
     auto read_start = chrono::high_resolution_clock::now();
     cout << "Reading all sketches using " << args.number_of_threads << " threads" << endl;
-    get_sketch_paths(args.filelist_queries, query_sketch_paths);
+    bool success = get_sketch_paths(args.filelist_queries, query_sketch_paths);
+    if (!success) {
+        cerr << "Error in reading the query sketch paths." << endl;
+        exit(1);
+    }
     cout << "Number of query sketches to read: " << query_sketch_paths.size() << endl;
     read_sketches(query_sketch_paths, 
                     query_sketches, 
@@ -140,8 +144,8 @@ void parse_args(int argc, char** argv, Arguments &arguments) {
         .required()
         .store_into(arguments.filelist_queries);
 
-    parser.add_argument("filelist_targets")
-        .help("The directory where the index is already stored)")
+    parser.add_argument("ref_index")
+        .help("The directory where the index is already stored")
         .required()
         .store_into(arguments.ref_index_dir);
 

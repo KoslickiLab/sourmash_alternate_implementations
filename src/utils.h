@@ -73,7 +73,7 @@ void compute_index_from_sketches(std::vector<Sketch>& sketches,
  * @param filelist The file containing the paths of the sketches
  * @param sketch_paths The vector to store the paths
  */
-void get_sketch_paths(const std::string& filelist, std::vector<std::string>& sketch_paths);
+bool get_sketch_paths(const std::string& filelist, std::vector<std::string>& sketch_paths);
 
 
 

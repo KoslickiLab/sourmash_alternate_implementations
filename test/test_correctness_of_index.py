@@ -44,6 +44,7 @@ def main():
         num_files = int(f_summary.readline().strip())
         for i in range(num_files):
             line = f_summary.readline().strip()
+            line = f'{index_directory}/{line}'
             with open(line, 'rb') as f_index:
                 # each line in this file is a binary file, the data is as follows:
                 # 64 bits: minhash value: unsigned long long

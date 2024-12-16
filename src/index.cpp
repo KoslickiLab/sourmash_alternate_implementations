@@ -17,6 +17,7 @@ struct Arguments {
     int number_of_threads;
     int num_hashtables;
     bool force_write;
+    bool load_and_test;
 };
 
 
@@ -56,6 +57,12 @@ void parse_args(int argc, char** argv, Arguments &arguments) {
         .implicit_value(true)
         .store_into(arguments.force_write);
 
+    parser.add_argument("-l", "--load-and-test")
+        .help("Load the index from file and test it")
+        .default_value(false)
+        .implicit_value(true)
+        .store_into(arguments.load_and_test);
+
     try {
         parser.parse_args(argc, argv);
     } catch (const std::runtime_error &err) {
@@ -90,7 +97,11 @@ int main(int argc, char** argv) {
 
     cout << "Reading sketch list..." << endl;
     vector<string> sketch_paths;
-    get_sketch_paths(arguments.filelist_sketches, sketch_paths);
+    bool success_read_filelist = get_sketch_paths(arguments.filelist_sketches, sketch_paths);
+    if (!success_read_filelist) {
+        cout << "Error reading the sketch paths." << endl;
+        exit(1);
+    }
     cout << "There are " << sketch_paths.size() << " sketches to read." << endl;
     cout << "Reading using " << arguments.number_of_threads << " threads..." << endl;
 
@@ -123,10 +134,12 @@ int main(int argc, char** argv) {
     }
     cout << "Index written to file." << endl;
 
-    // make the program exit faster using exit(0)
-    exit(0);
+    
+    if (!arguments.load_and_test) {
+        cout << "Exiting..." << endl;
+        exit(0);
+    }
 
-    /*
     
     // following code is for testing the load_from_file function
     cout << "Loading index from file..." << endl;
@@ -167,8 +180,9 @@ int main(int argc, char** argv) {
 
     cout << "All tests passed." << endl;
     
+    // exit
     exit(0);
 
-    */
+    
 
 }
