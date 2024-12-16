@@ -36,26 +36,26 @@ def main():
     loaded_index = {}
     # open index_directory/summary
     summary_filename = 'summary'
-    with open(f'{index_directory}/{summary_filename}', 'r') as f:
+    with open(f'{index_directory}/{summary_filename}', 'r') as f_summary:
         # open the file summary, this is a simple text file
         # first line is the number of individaul files = n
         # then follows n lines, each line is a separate text file
         num_files = int(f.readline().strip())
         for i in range(num_files):
-            line = f.readline().strip()
-            with open(line, 'rb') as f:
+            line = f_summary.readline().strip()
+            with open(line, 'rb') as f_index:
                 # each line in this file is a binary file, the data is as follows:
                 # 64 bits: minhash value
                 # 32 bits: number of sketches that have this minhash value = m
                 # m * 32 bits: the ids of the sketches that have this minhash value
                 while True:
-                    min_hash = f.read(8)
+                    min_hash = f_index.read(8)
                     if not min_hash:
                         break
                     min_hash = int.from_bytes(min_hash, byteorder='big')
-                    num_sketches = int.from_bytes(f.read(4), byteorder='big')
+                    num_sketches = int.from_bytes(f_index.read(4), byteorder='big')
                     for i in range(num_sketches):
-                        sketch_id = int.from_bytes(f.read(4), byteorder='big')
+                        sketch_id = int.from_bytes(f_index.read(4), byteorder='big')
                         if min_hash not in loaded_index:
                             loaded_index[min_hash] = []
                         loaded_index[min_hash].append(sketch_id)
