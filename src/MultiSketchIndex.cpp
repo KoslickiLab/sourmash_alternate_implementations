@@ -241,8 +241,8 @@ std::vector<SketchInfo> MultiSketchIndex::load_from_file(std::string directory_n
     for (int i = 0; i < num_files; i++) {
         std::string filename;
         summary_file >> filename;
-        std::string filename_with_path = directory_name + filename;
-        files_to_read.push_back(filename);
+        std::string filename_with_path = directory_name + '/' + filename;
+        files_to_read.push_back(filename_with_path);
     }
 
     // read the number of genomes
