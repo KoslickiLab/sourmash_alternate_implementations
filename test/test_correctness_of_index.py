@@ -16,12 +16,12 @@ def main():
     index_to_build = {}
 
     # each line in filelist is a sketch file, which is a json file
-    with open(filelist, 'r') as f:
+    with open(filelist, 'r') as f_list:
         id_of_this_sketch = 0
-        for line in f:
+        for line in f_list:
             sketch_file = line.strip()
-            with open(sketch_file, 'r') as f:
-                sketch = json.load(f)
+            with open(sketch_file, 'r') as f_sketch:
+                sketch = json.load(f_sketch)
                 min_hashes = sketch[0]['signatures'][0]['mins']
                 for min_hash in min_hashes:
                     if min_hash not in index_to_build:
@@ -40,7 +40,7 @@ def main():
         # open the file summary, this is a simple text file
         # first line is the number of individaul files = n
         # then follows n lines, each line is a separate text file
-        num_files = int(f.readline().strip())
+        num_files = int(f_summary.readline().strip())
         for i in range(num_files):
             line = f_summary.readline().strip()
             with open(line, 'rb') as f_index:
