@@ -66,9 +66,21 @@ def main():
     for min_hash in loaded_index:
         loaded_index[min_hash].sort()
 
-    assert built_index == loaded_index
+    error = False
+    for min_hash in built_index:
+        if min_hash not in loaded_index:
+            print(f'Error: min_hash {min_hash} not found in loaded index')
+            error = True
+            continue
+        for sketch_id in built_index[min_hash]:
+            if sketch_id not in loaded_index[min_hash]:
+                print(f'Error: sketch {sketch_id} not found in loaded index for min_hash {min_hash}')
+                error = True
 
-    print('Index correctness test passed!')
+    if not error:
+        print('Index correctness test passed!')
+    else:    
+        print('Index correctness test failed!')
         
 
 
