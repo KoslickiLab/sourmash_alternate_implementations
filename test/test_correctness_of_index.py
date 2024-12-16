@@ -61,3 +61,6 @@ def main():
     # compare built index and loaded index
     assert built_index == loaded_index
 
+
+if __name__ == '__main__':
+    main()
