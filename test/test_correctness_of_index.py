@@ -67,6 +67,8 @@ def main():
         loaded_index[min_hash].sort()
 
     assert built_index == loaded_index
+
+    print('Index correctness test passed!')
         
 
 
