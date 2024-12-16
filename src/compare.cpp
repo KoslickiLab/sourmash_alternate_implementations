@@ -140,8 +140,8 @@ void parse_args(int argc, char** argv, Arguments &arguments) {
         .required()
         .store_into(arguments.filelist_queries);
 
-    parser.add_argument("filelist_targets")
-        .help("The directory where the index is already stored)")
+    parser.add_argument("ref_index")
+        .help("The directory where the index is already stored")
         .required()
         .store_into(arguments.ref_index_dir);
 
