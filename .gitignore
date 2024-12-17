@@ -4,3 +4,5 @@ bin/*
 obj/*
 .vscode/settings.json
 .vscode/c_cpp_properties.json
+test/output/*
+test/data/filelist*.txt

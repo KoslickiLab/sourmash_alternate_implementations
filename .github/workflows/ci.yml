@@ -1,0 +1,67 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Checkout the code
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    # 2. Install build tools
+    - name: Install build tools
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential g++
+
+    # 3. Build the C++ binaries
+    - name: Build C++ project
+      run: make
+
+    # 4. Generate file list for input files
+    - name: Generate file list for input
+      run: |
+        echo "Generating file list..."
+        find test/data/sketches_100 -type f > test/data/filelist_100.txt
+        find test/data/sketches_50 -type f > test/data/filelist_50.txt
+
+    # 5. Run the binaries using generated file list
+    - name: Run binaries on generated file list
+      run: |
+        mkdir -p test/output
+        mkdir -p test/output/working_directory
+        ./bin/index test/data/filelist_100.txt test/output/index_100 -t 4 -n 1000 -f
+        ./bin/index test/data/filelist_50.txt test/output/index_50 -t 4 -n 1000 -f
+        ./bin/compare test/data/filelist_100.txt test/output/index_100/ test/output/working_directory test/output/compare_100_v_100 -c 0.0 -t 2 -n 500 -k 51
+        ./bin/compare test/data/filelist_50.txt test/output/index_100/ test/output/working_directory test/output/compare_50_v_100 -c 0.0 -t 2 -n 500 -k 51
+        ./bin/compare test/data/filelist_100.txt test/output/index_50/ test/output/working_directory test/output/compare_100_v_50 -c 0.0 -t 2 -n 500 -k 51
+        ./bin/compare test/data/filelist_50.txt test/output/index_50/ test/output/working_directory test/output/compare_50_v_50 -c 0.0 -t 2 -n 500 -k 51
+        echo "Binaries executed successfully."
+
+    # 6. Set up Python environment
+    - name: Set up Python environment
+      uses: actions/setup-python@v5
+
+    - name: Install Python dependencies
+      run: |
+        pip install --upgrade pip
+        pip install -r test/requirements.txt
+
+    # 7. Run Python tests for correctness
+    - name: Run Python correctness tests
+      run: |
+        python test/test_correctness_of_index.py --filelist test/data/filelist_100.txt --index_directory test/output/index_100
+        python test/test_correctness_of_index.py --filelist test/data/filelist_50.txt --index_directory test/output/index_50
+        python test/compare_multisearch_results.py test/data/multisearch_100_v_100 test/output/compare_100_v_100
+        python test/compare_multisearch_results.py test/data/multisearch_50_v_100 test/output/compare_50_v_100
+        python test/compare_multisearch_results.py test/data/multisearch_100_v_50 test/output/compare_100_v_50
+        python test/compare_multisearch_results.py test/data/multisearch_50_v_50 test/output/compare_50_v_50
