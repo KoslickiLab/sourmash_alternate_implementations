@@ -16,8 +16,8 @@ struct Arguments {
     string index_directory_name;
     int number_of_threads;
     int num_hashtables;
-    bool force_write;
     bool load_and_test;
+    bool store_archive;
 };
 
 
@@ -35,7 +35,7 @@ void parse_args(int argc, char** argv, Arguments &arguments) {
         .store_into(arguments.filelist_sketches);
 
     parser.add_argument("index_directory_name")
-        .help("The directory where the index will be stored)")
+        .help("The directory where the index will be stored (needs to be empty)")
         .required()
         .store_into(arguments.index_directory_name);
 
@@ -51,17 +51,17 @@ void parse_args(int argc, char** argv, Arguments &arguments) {
         .default_value(4096)
         .store_into(arguments.num_hashtables);
 
-    parser.add_argument("-f", "--force")
-        .help("Force write the index to file")
-        .default_value(false)
-        .implicit_value(true)
-        .store_into(arguments.force_write);
-
     parser.add_argument("-l", "--load-and-test")
         .help("Load the index from file and test it")
         .default_value(false)
         .implicit_value(true)
         .store_into(arguments.load_and_test);
+
+    parser.add_argument("-s", "--store-archive")
+        .help("Store a tar.gz archive of the index")
+        .default_value(false)
+        .implicit_value(true)
+        .store_into(arguments.store_archive);
 
     try {
         parser.parse_args(argc, argv);
@@ -82,7 +82,8 @@ void show_arguments(Arguments &arguments) {
     cout << "*  index_directory_name: " << arguments.index_directory_name << endl;
     cout << "*  number_of_threads: " << arguments.number_of_threads << endl;
     cout << "*  num_hashtables: " << arguments.num_hashtables << endl;
-    cout << "*  force_write: " << arguments.force_write << endl;
+    cout << "*  load_and_test: " << arguments.load_and_test << endl;
+    cout << "*  store_archive: " << arguments.store_archive << endl;
     cout << "* " << endl;
     cout << "*********************************" << endl;
 }
@@ -126,13 +127,23 @@ int main(int argc, char** argv) {
 
     bool success = multi_sketch_index.write_to_file(arguments.index_directory_name, 
                                             arguments.number_of_threads, 
-                                            info_of_sketches,
-                                            arguments.force_write);
+                                            info_of_sketches);
     if (!success) {
         cout << "Error writing index to file." << endl;
         exit(1);
     }
-    cout << "Index written to file." << endl;
+    cout << "Index written to the provided directory." << endl;
+
+    if (arguments.store_archive) {
+        cout << "Storing archive..." << endl;
+        string archive_name = arguments.index_directory_name + ".tar.gz";
+        string command = "tar -czvf " + archive_name + " " + arguments.index_directory_name;
+        if (system(command.c_str()) != 0) {
+            cout << "Error storing archive." << endl;
+            exit(1);
+        }
+        cout << "Archive stored to " << archive_name << endl;
+    }
 
     
     if (!arguments.load_and_test) {

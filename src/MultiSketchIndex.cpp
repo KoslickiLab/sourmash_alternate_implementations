@@ -121,8 +121,7 @@ void MultiSketchIndex::write_one_chunk(std::string filename, int start_index, in
 
 bool MultiSketchIndex::write_to_file(std::string directory_name, 
                                     int num_threads, 
-                                    std::vector<SketchInfo> info_of_sketches,
-                                    bool force_write) {
+                                    std::vector<SketchInfo> info_of_sketches) {
     // check if the directory exists, if not then create it
     struct stat info;
     if (stat(directory_name.c_str(), &info) != 0) {
@@ -148,16 +147,7 @@ bool MultiSketchIndex::write_to_file(std::string directory_name,
 
     if (!is_empty) {
         std::cout << "Error: Directory is not empty." << std::endl;
-        std::cout << "Continue anyway? (type y/n): ";
-        if (force_write) {
-            std::cout << "writing anyway (force-write enabled)." << std::endl;
-        } else {
-            char response;
-            std::cin >> response;
-            if (response != 'y') {
-                return false;
-            }
-        }
+        return false;
     }
 
     std::vector<std::string> files_written;
