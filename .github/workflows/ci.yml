@@ -31,8 +31,8 @@ jobs:
     - name: Generate file list for input
       run: |
         echo "Generating file list..."
-        find test/data/sketches -type f > test/data/filelist_100.txt
-        head -n 50 test/data/filelist_100.txt > test/data/filelist_50.txt
+        find test/data/sketches_100 -type f > test/data/filelist_100.txt
+        find test/data/sketches_50 -type f > test/data/filelist_50.txt
 
     # 5. Run the binaries using generated file list
     - name: Run binaries on generated file list
