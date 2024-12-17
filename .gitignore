@@ -6,3 +6,6 @@ obj/*
 .vscode/c_cpp_properties.json
 test/output/*
 test/data/filelist*.txt
+test/data/archived_index_100.tar.gz
+test/data/index_100.tar.gz
+test/data/*index*/*

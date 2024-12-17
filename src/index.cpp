@@ -16,8 +16,7 @@ struct Arguments {
     string index_directory_name;
     int number_of_threads;
     int num_hashtables;
-    bool force_write;
-    bool load_and_test;
+    bool store_archive;
 };
 
 
@@ -35,7 +34,7 @@ void parse_args(int argc, char** argv, Arguments &arguments) {
         .store_into(arguments.filelist_sketches);
 
     parser.add_argument("index_directory_name")
-        .help("The directory where the index will be stored)")
+        .help("The directory where the index will be stored (needs to be empty)")
         .required()
         .store_into(arguments.index_directory_name);
 
@@ -51,17 +50,11 @@ void parse_args(int argc, char** argv, Arguments &arguments) {
         .default_value(4096)
         .store_into(arguments.num_hashtables);
 
-    parser.add_argument("-f", "--force")
-        .help("Force write the index to file")
+    parser.add_argument("-s", "--store-archive")
+        .help("Store a tar.gz archive of the index")
         .default_value(false)
         .implicit_value(true)
-        .store_into(arguments.force_write);
-
-    parser.add_argument("-l", "--load-and-test")
-        .help("Load the index from file and test it")
-        .default_value(false)
-        .implicit_value(true)
-        .store_into(arguments.load_and_test);
+        .store_into(arguments.store_archive);
 
     try {
         parser.parse_args(argc, argv);
@@ -82,7 +75,7 @@ void show_arguments(Arguments &arguments) {
     cout << "*  index_directory_name: " << arguments.index_directory_name << endl;
     cout << "*  number_of_threads: " << arguments.number_of_threads << endl;
     cout << "*  num_hashtables: " << arguments.num_hashtables << endl;
-    cout << "*  force_write: " << arguments.force_write << endl;
+    cout << "*  store_archive: " << arguments.store_archive << endl;
     cout << "* " << endl;
     cout << "*********************************" << endl;
 }
@@ -127,62 +120,12 @@ int main(int argc, char** argv) {
     bool success = multi_sketch_index.write_to_file(arguments.index_directory_name, 
                                             arguments.number_of_threads, 
                                             info_of_sketches,
-                                            arguments.force_write);
+                                            arguments.store_archive);
     if (!success) {
         cout << "Error writing index to file." << endl;
         exit(1);
     }
-    cout << "Index written to file." << endl;
+    cout << "Index written successfully." << endl;
 
-    
-    if (!arguments.load_and_test) {
-        cout << "Exiting..." << endl;
-        exit(0);
-    }
-
-    
-    // following code is for testing the load_from_file function
-    cout << "Loading index from file..." << endl;
-    MultiSketchIndex loaded_index(arguments.num_hashtables);
-    auto loaded_sketch_info = loaded_index.load_from_file(arguments.index_directory_name);
-
-    int num_sketches = sketches.size();
-    int num_loaded_sketches = loaded_sketch_info.size();
-
-    // check if the number of sketches is the same
-    if (num_sketches != num_loaded_sketches) {
-        cout << "Error: The number of sketches is not the same." << endl;
-        cout << "Original: " << num_sketches << endl;
-        cout << "Loaded: " << num_loaded_sketches << endl;
-        exit(1);
-    }
-
-    // now assert that the sketch info are the same
-    for (int i = 0; i < num_sketches; i++) {
-        if (sketches[i].info != loaded_sketch_info[i]) {
-            cout << "Error: The sketch info is not the same." << endl;
-            // show the sketch info
-            cout << "Original:" << endl;
-            sketches[i].info.show();
-            cout << "Loaded:" << endl;
-            loaded_sketch_info[i].show();
-            exit(1);
-        }
-    }
-
-    // finally, check if the index is the same
-    if (multi_sketch_index == loaded_index) {
-        cout << "Index loaded successfully." << endl;
-    } else {
-        cout << "Error: The loaded index is not the same as the original one." << endl;
-        exit(1);
-    }
-
-    cout << "All tests passed." << endl;
-    
-    // exit
-    exit(0);
-
-    
 
 }

@@ -19,7 +19,7 @@ using json = nlohmann::json;
 
 struct Arguments {
     string filelist_queries;
-    string ref_index_dir;
+    string ref_index_name;
     string working_dir;
     string output_filename;
     double containment_threshold;
@@ -37,7 +37,6 @@ typedef Arguments Arguments;
 void do_compare(Arguments& args) {
     // data structures
     vector<string> query_sketch_paths;
-    vector<string> target_sketch_paths;
     vector<Sketch> query_sketches;
     vector<int> empty_sketch_ids;
     MultiSketchIndex target_sketch_index(args.num_hashtables);
@@ -61,7 +60,8 @@ void do_compare(Arguments& args) {
 
     cout << "Reading the target index..." << endl;
     auto target_start = chrono::high_resolution_clock::now();
-    vector<SketchInfo> info_of_target_sketches = target_sketch_index.load_from_file(args.ref_index_dir);
+    // load the index
+    vector<SketchInfo> info_of_target_sketches = target_sketch_index.load_from_file(args.ref_index_name);
     auto target_end = chrono::high_resolution_clock::now();
     auto target_duration = chrono::duration_cast<chrono::seconds>(target_end - target_start);
     cout << "Target index loaded in " << target_duration.count() << " seconds." << endl;
@@ -147,7 +147,7 @@ void parse_args(int argc, char** argv, Arguments &arguments) {
     parser.add_argument("ref_index")
         .help("The directory where the index is already stored")
         .required()
-        .store_into(arguments.ref_index_dir);
+        .store_into(arguments.ref_index_name);
 
     parser.add_argument("working_dir")
         .help("The directory where smaller files will be stored")
@@ -205,7 +205,7 @@ void show_args(Arguments &args) {
     cout << "**************************************" << endl;
     cout << "*" << endl;
     cout << "*   Query filelist: " << args.filelist_queries << endl;
-    cout << "*   Targets index directory: " << args.ref_index_dir << endl;
+    cout << "*   Targets index directory: " << args.ref_index_name << endl;
     cout << "*   Working directory: " << args.working_dir << endl;
     cout << "*   Output filename: " << args.output_filename << endl;
     cout << "*   Containment threshold: " << args.containment_threshold << endl;
