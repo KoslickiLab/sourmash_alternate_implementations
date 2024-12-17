@@ -39,8 +39,8 @@ jobs:
       run: |
         mkdir -p test/output
         mkdir -p test/output/working_directory
-        ./bin/index test/data/filelist_100.txt test/output/index_100 -t 4 -n 1000 -f
-        ./bin/index test/data/filelist_50.txt test/output/index_50 -t 4 -n 1000 -f
+        ./bin/index test/data/filelist_100.txt test/output/index_100 -t 4 -n 1000
+        ./bin/index test/data/filelist_50.txt test/output/index_50 -t 4 -n 1000
         ./bin/compare test/data/filelist_100.txt test/output/index_100/ test/output/working_directory test/output/compare_100_v_100 -c 0.0 -t 2 -n 500 -k 51
         ./bin/compare test/data/filelist_50.txt test/output/index_100/ test/output/working_directory test/output/compare_50_v_100 -c 0.0 -t 2 -n 500 -k 51
         ./bin/compare test/data/filelist_100.txt test/output/index_50/ test/output/working_directory test/output/compare_100_v_50 -c 0.0 -t 2 -n 500 -k 51
