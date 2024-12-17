@@ -65,3 +65,18 @@ jobs:
         python test/compare_multisearch_results.py test/data/multisearch_50_v_100 test/output/compare_50_v_100
         python test/compare_multisearch_results.py test/data/multisearch_100_v_50 test/output/compare_100_v_50
         python test/compare_multisearch_results.py test/data/multisearch_50_v_50 test/output/compare_50_v_50
+
+    # 8. Test correctness of tar.gz index
+    - name: Test correctness of tar.gz index
+      run: |
+        ./bin/index test/data/filelist_100.txt test/output/archived_index_100 -t 4 -n 1000 -s
+        rm -r test/output/archived_index_100
+        bin/compare test/data/filelist_100.txt test/output/archived_index_100.tar.gz test/output/working_directory test/output/compare_100_v_100_tar -c 0.0 -t 2 -n 500 -k 51
+        python test/compare_multisearch_results.py test/data/multisearch_100_v_100 test/output/compare_100_v_100_tar
+
+    # 9. Test correctness of tar.gz index when it has been moved
+    - name: Test correctness of tar.gz index when it has been moved
+      run: |
+        mv test/output/archived_index_100.tar.gz test/data/archived_index_100.tar.gz
+        bin/compare test/data/filelist_100.txt test/data/archived_index_100.tar.gz test/output/working_directory test/output/compare_100_v_100_tar_moved -c 0.0 -t 2 -n 500 -k 51
+        python test/compare_multisearch_results.py test/data/multisearch_100_v_100 test/output/compare_100_v_100_tar_moved

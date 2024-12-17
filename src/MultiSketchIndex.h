@@ -114,7 +114,8 @@ class MultiSketchIndex {
          */
         bool write_to_file(std::string directory_name, 
                                     int num_threads, 
-                                    std::vector<SketchInfo> info_of_sketches);
+                                    std::vector<SketchInfo> info_of_sketches,
+                                    bool store_archive);
 
         /**
          * @brief load an index from a file.
