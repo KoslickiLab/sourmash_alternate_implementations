@@ -127,5 +127,7 @@ int main(int argc, char** argv) {
     }
     cout << "Index written successfully." << endl;
 
+    exit(0);
+
 
 }
