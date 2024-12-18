@@ -217,6 +217,10 @@ void MultiSketchIndex::load_one_chunk(std::vector<std::string> chunk_filenames,
     // Load the chunk files from start_index to end_index-1
     for (int i = start_index; i < end_index; i++) {
         std::ifstream file(chunk_filenames[i], std::ios::binary);
+        if (!file.is_open()) {
+            std::cout << "Error: Could not open file " << chunk_filenames[i] << std::endl;
+            exit(1);
+        }
         while (file.peek() != EOF) {
             hash_t hash_value;
             file.read(reinterpret_cast<char*>(&hash_value), sizeof(hash_t));
@@ -247,14 +251,15 @@ std::vector<SketchInfo> MultiSketchIndex::load_from_file(std::string index_name,
     std::vector<SketchInfo> info_of_sketches = std::get<0>(all_info);
     std::vector<std::string> files_to_read = std::get<1>(all_info);
     int num_references = info_of_sketches.size();
+    int num_chunk_files = files_to_read.size();
 
     // now load the individual files
     num_threads = std::min(num_threads, num_references);
     std::vector<std::thread> threads;
-    int num_chunks_this_thread = num_references / num_threads;
+    int num_chunks_this_thread = num_chunk_files / num_threads;
     for (int i = 0; i < num_threads; i++) {
         int start_index = i * num_chunks_this_thread;
-        int end_index = (i == num_threads - 1) ? num_references : (i + 1) * num_chunks_this_thread;
+        int end_index = (i == num_threads - 1) ? num_chunk_files : (i + 1) * num_chunks_this_thread;
         threads.push_back(std::thread(&MultiSketchIndex::load_one_chunk, 
                             this, 
                             files_to_read, 
