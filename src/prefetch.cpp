@@ -94,28 +94,16 @@ void do_prefetch(Arguments& args) {
             }
         }
     }
-    
-    // now sort the ref sketches based on the number of intersections
-    vector<tuple<int, size_t>> ref_id_num_intersections;
-    for (int i = 0; i < num_references; i++) {
-        ref_id_num_intersections.push_back(make_tuple(i, num_intersection_values[i]));
-    }
-
-    sort(ref_id_num_intersections.begin(), ref_id_num_intersections.end(), 
-        [](const tuple<int, size_t>& a, const tuple<int, size_t>& b) {
-            return get<1>(a) > get<1>(b);
-        });
 
     // write the results to the output file
     ofstream outfile(args.output_filename);
     outfile << "match_id,match_name,match_md5,num_intersections,containment_query_ref,containment_ref_query,max_containment,jaccard" << endl;
-    for (auto ref_id_num_intersection : ref_id_num_intersections) {
+    for (int ref_id = 0; ref_id < num_references; ref_id++) {
         
-        int ref_id = get<0>(ref_id_num_intersection);
-        size_t num_intersection = get<1>(ref_id_num_intersection);
+        size_t num_intersection = num_intersection_values[ref_id];
         
         if (num_intersection < args.threshold_bp || num_intersection == 0) {
-            break;
+            continue;
         }
         if (query_sketch.size() == 0 || info_of_references[ref_id].sketch_size == 0) {
             continue;
@@ -128,7 +116,7 @@ void do_prefetch(Arguments& args) {
         double max_containment = max(containment_query_ref, containment_ref_query);
         double jaccard = 1.0 * num_intersection / (query_sketch.size() + info_of_references[ref_id].sketch_size - num_intersection);
         
-        outfile << ref_id << "," << match_name << "," << match_md5 << "," << num_intersection << "," << containment_query_ref << "," << containment_ref_query << "," << max_containment << "," << jaccard << endl;
+        outfile << ref_id << ",\"" << match_name << "\"," << match_md5 << "," << num_intersection << "," << containment_query_ref << "," << containment_ref_query << "," << max_containment << "," << jaccard << endl;
     }
 
     outfile.close();

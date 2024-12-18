@@ -80,3 +80,19 @@ jobs:
         mv test/output/archived_index_100.tar.gz test/data/archived_index_100.tar.gz
         bin/compare test/data/filelist_100.txt test/data/archived_index_100.tar.gz test/output/working_directory test/output/compare_100_v_100_tar_moved -c 0.0 -t 2 -n 500 -k 51
         python test/compare_multisearch_results.py test/data/multisearch_100_v_100 test/output/compare_100_v_100_tar_moved
+
+    # 10. Run prefetch and compare against sourmash prefetch
+    - name: Run prefetch and compare against sourmash prefetch (threshold=0)
+      run: |
+        ./bin/prefetch test/data/query_sketch.sig test/output/index_100 test/output/this_prefetch_against_100 -b 0
+        ./bin/prefetch test/data/query_sketch.sig test/output/index_50 test/output/this_prefetch_against_50 -b 0
+        python test/compare_against_prefetch.py test/data/sourmash_prefetch_against_100 test/output/this_prefetch_against_100
+        python test/compare_against_prefetch.py test/data/sourmash_prefetch_against_50 test/output/this_prefetch_against_50
+
+    # 11. Run prefetch and compare against sourmash prefetch
+    - name: Run prefetch and compare against sourmash prefetch (threshold=2)
+      run: |
+        ./bin/prefetch test/data/query_sketch.sig test/output/index_100 test/output/this_prefetch_against_100_threshold_2 -b 2
+        ./bin/prefetch test/data/query_sketch.sig test/output/index_50 test/output/this_prefetch_against_50_threshold_2 -b 2
+        python test/compare_against_prefetch.py test/data/sourmash_prefetch_against_100_threshold_2 test/output/this_prefetch_against_100_threshold_2
+        python test/compare_against_prefetch.py test/data/sourmash_prefetch_against_50_threshold_2 test/output/this_prefetch_against_50_threshold_2
