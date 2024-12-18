@@ -22,11 +22,24 @@ typedef unsigned long long int hash_t;
 #endif
 
 
+/**
+ * @brief Get all the info of the sketches from the index directory (reads the summary file only)
+ * 
+ * @param index_directory_name The directory where the index is stored.
+ * @return std::tuple<int, std::vector<SketchInfo>, std::vector<std::string>> The number of references, the info of all the sketches, and the names of the references.
+ */
 std::tuple<int,
             std::vector<SketchInfo>,
             std::vector<std::string>
             >         
             get_sketch_info_from_file(std::string index_directory_name);
+
+
+/**
+ * @brief Extract the tar.gz file and return the name of the extracted directory if the file is a tar.gz file.
+ * Otherwise, return the same name.
+ */
+std::string extract_if_tar_gz(std::string index_name);
 
 
 

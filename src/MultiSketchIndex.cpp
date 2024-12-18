@@ -239,70 +239,10 @@ void MultiSketchIndex::load_one_chunk(std::vector<std::string> chunk_filenames,
 std::vector<SketchInfo> MultiSketchIndex::load_from_file(std::string index_name,
                                                             int num_threads) {
 
-    // check if index_name is a tar.gz archive
-    bool tar_gz = false;
-    if (index_name.size() >= 7) {
-        if (index_name.substr(index_name.size() - 7) == ".tar.gz") {
-            tar_gz = true;
-        }
-    }
+    // check if the index_name is a tar.gz archive, if yes, exyract it
+    std::string directory_name = extract_if_tar_gz(index_name);
 
-    std::string directory_name;
-    if (tar_gz) {
-        // directory name is the same as the index name without the .tar.gz extension
-        directory_name = index_name.substr(0, index_name.size() - 7);
-    } else {
-        directory_name = index_name;
-    }
-
-    if (tar_gz) {
-        std::cout << "Need to extract the tar.gz archive to " << directory_name << std::endl;
-        
-        // check if the directory exists and non-empty. if so, do not extract
-        struct stat info;
-        bool directory_exists = stat(directory_name.c_str(), &info) == 0;
-        bool non_empty = false;
-        if (directory_exists) {
-            DIR* dir = opendir(directory_name.c_str());
-            struct dirent* ent;
-            while ((ent = readdir(dir)) != NULL) {
-                if (strcmp(ent->d_name, ".") != 0 && strcmp(ent->d_name, "..") != 0) {
-                    non_empty = true;
-                    break;
-                }
-            }
-        }
-
-        bool extract = true;
-        if (directory_exists && non_empty) {
-            std::cout << "Unarchived directory " << directory_name << " already exists and is not empty." << std::endl;
-            std::cout << "Assuming this directory as is, is indeed the index." << std::endl;
-            extract = false;
-        }
-
-        if (extract) {
-            // create the directory
-            std::string command = "mkdir -p " + directory_name;
-            std::cout << command << std::endl;
-            int ret_code = system(command.c_str());
-            if (ret_code != 0) {
-                std::cout << "Error: Could not create directory." << std::endl;
-                exit(1);
-            }
-            // extract the tar.gz archive
-            command = "tar -xzf " + index_name + " -C " + directory_name;
-            std::cout << command << std::endl;
-            ret_code = system(command.c_str());
-            if (ret_code != 0) {
-                std::cout << "Error: Could not extract the tar.gz archive." << std::endl;
-                exit(1);
-            }
-            std::cout << "Extracted the tar.gz archive to " << directory_name << " successfully" << std::endl;
-        }        
-
-    }
-
-    // now load the index
+    // now read the index summary file and get all the info
     auto all_info = get_sketch_info_from_file(directory_name);
     int num_files = std::get<0>(all_info);
     std::vector<SketchInfo> info_of_sketches = std::get<1>(all_info);
@@ -339,10 +279,10 @@ bool MultiSketchIndex::hash_exists(hash_t hash_value) const {
 
 
 std::tuple<int,
-                        std::vector<SketchInfo>,
-                        std::vector<std::string>
-                        >         
-                        get_sketch_info_from_file(std::string index_directory_name) {
+            std::vector<SketchInfo>,
+            std::vector<std::string>
+            >         
+        get_sketch_info_from_file(std::string index_directory_name) {
     // Load an index from a file
     std::string summary_filename = index_directory_name + "/summary";
     std::ifstream summary_file(summary_filename);   
@@ -401,4 +341,72 @@ std::tuple<int,
     return std::make_tuple(num_files, 
                             info_of_sketches, 
                             files_to_read);
+}
+
+
+
+
+
+std::string extract_if_tar_gz(std::string index_name) {
+    // check if index_name is a tar.gz archive
+    bool tar_gz = false;
+    if (index_name.size() >= 7) {
+        if (index_name.substr(index_name.size() - 7) == ".tar.gz") {
+            tar_gz = true;
+        }
+    }
+
+    // if not a tar.gz archive, return the index name as is
+    if (!tar_gz) {
+        return index_name;
+    }
+
+    // if a tar.gz archive, extract the desired directory name
+    std::string directory_name = index_name.substr(0, index_name.size() - 7);
+    std::cout << "Need to extract the tar.gz archive to " << directory_name << std::endl;
+    
+    // check if the directory exists and non-empty. if so, do not extract
+    struct stat info;
+    bool directory_exists = stat(directory_name.c_str(), &info) == 0;
+    bool non_empty = false;
+    if (directory_exists) {
+        DIR* dir = opendir(directory_name.c_str());
+        struct dirent* ent;
+        while ((ent = readdir(dir)) != NULL) {
+            if (strcmp(ent->d_name, ".") != 0 && strcmp(ent->d_name, "..") != 0) {
+                non_empty = true;
+                break;
+            }
+        }
+    }
+
+    bool do_not_extract = directory_exists && non_empty;
+    if (do_not_extract) {
+        std::cout << "Warning: Unarchived directory " << directory_name << " already exists and is not empty." << std::endl;
+        std::cout << "Warning: Assuming this directory as is, is indeed the index." << std::endl;
+        return directory_name;
+    }
+
+    // create the directory
+    std::cout << "Creating directory " << directory_name << std::endl;
+    std::string command = "mkdir -p " + directory_name;
+    std::cout << command << std::endl;
+    int ret_code = system(command.c_str());
+    if (ret_code != 0) {
+        std::cout << "Error: Could not create directory." << std::endl;
+        exit(1);
+    }
+
+    // extract the tar.gz archive
+    std::cout << "Extracting the tar.gz archive to " << directory_name << std::endl;
+    command = "tar -xzf " + index_name + " -C " + directory_name;
+    std::cout << command << std::endl;
+    ret_code = system(command.c_str());
+    if (ret_code != 0) {
+        std::cout << "Error: Could not extract the tar.gz archive." << std::endl;
+        exit(1);
+    }
+    std::cout << "Extracted the tar.gz archive to " << directory_name << " successfully" << std::endl;
+    return directory_name;     
+
 }
