@@ -128,7 +128,9 @@ class MultiSketchIndex {
                                                int num_threads);
 
 
-
+        /**
+         * @brief show some stats of the index (for debugging purposes)
+         */
         void show_index_stats() {
             std::cout << "Number of indices: " << num_of_indices << std::endl;
             std::cout << "Index size: " << size() << std::endl;
@@ -138,7 +140,13 @@ class MultiSketchIndex {
             }
         }
 
-
+        /**
+         * @brief check if two MultiSketchIndex objects are equal (checks content only, not separate hashtables)
+         * 
+         * @param other the other MultiSketchIndex object
+         * @return true if the two objects are equal
+         * @return false if the two objects are not equal
+         */
         bool operator==(const MultiSketchIndex &other) {
             // iterate over all the hash values
             for (int i = 0; i < num_of_indices; i++) {
@@ -170,6 +178,9 @@ class MultiSketchIndex {
         }
 
 
+        /**
+         * @brief get all the hash values in the index
+         */
         std::vector<hash_t> get_all_hashes() {
             std::vector<hash_t> all_hashes;
             for (int i = 0; i < num_of_indices; i++) {
@@ -180,11 +191,19 @@ class MultiSketchIndex {
             return all_hashes;
         }
 
+
+        static std::tuple<int,
+                        std::vector<SketchInfo>,
+                        std::vector<std::string>
+                        >         
+                        get_sketch_info_from_file(std::string index_directory_name);
+
         
     private:
         std::vector<std::unordered_map<hash_t, std::vector<int>>> multiple_sketch_indices;
         std::vector<std::mutex>mutexes;
         int num_of_indices;
+        const std::vector<int> empty_vector;
 
         /**
          * @brief given a hash value, get the index of the hash_table where this hash value should be stored.
@@ -196,7 +215,7 @@ class MultiSketchIndex {
             return hash_value % num_of_indices;
         }
 
-        const std::vector<int> empty_vector;
+        
 
         /**
          * @brief helper function to write one chunk of the index to a file.

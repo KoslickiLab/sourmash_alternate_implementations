@@ -302,8 +302,49 @@ std::vector<SketchInfo> MultiSketchIndex::load_from_file(std::string index_name,
 
     }
 
+    // now load the index
+    std::tuple<int, std::vector<SketchInfo>, std::vector<std::string>> all_info = get_sketch_info_from_file(directory_name);
+    int num_files = std::get<0>(all_info);
+    std::vector<SketchInfo> info_of_sketches = std::get<1>(all_info);
+    std::vector<std::string> files_to_read = std::get<2>(all_info);
+
+    // now load the individual files
+    num_threads = std::min(num_threads, num_files);
+    std::vector<std::thread> threads;
+    int num_chunks_this_thread = num_files / num_threads;
+    for (int i = 0; i < num_threads; i++) {
+        int start_index = i * num_chunks_this_thread;
+        int end_index = (i == num_threads - 1) ? num_files : (i + 1) * num_chunks_this_thread;
+        threads.push_back(std::thread(&MultiSketchIndex::load_one_chunk, 
+                            this, 
+                            files_to_read, 
+                            start_index, 
+                            end_index));
+    }
+
+    for (int i = 0; i < num_threads; i++) {
+        threads[i].join();
+    }
+
+    return info_of_sketches;
+
+}
+
+
+bool MultiSketchIndex::hash_exists(hash_t hash_value) const {
+    int idx_of_hash = index_of_hash(hash_value);
+    return multiple_sketch_indices[idx_of_hash].find(hash_value) != multiple_sketch_indices[idx_of_hash].end();
+}
+
+
+
+static std::tuple<int,
+                        std::vector<SketchInfo>,
+                        std::vector<std::string>
+                        >         
+                        get_sketch_info_from_file(std::string index_directory_name) {
     // Load an index from a file
-    std::string summary_filename = directory_name + "/summary";
+    std::string summary_filename = index_directory_name + "/summary";
     std::ifstream summary_file(summary_filename);   
 
     if (!summary_file.is_open()) {
@@ -311,7 +352,8 @@ std::vector<SketchInfo> MultiSketchIndex::load_from_file(std::string index_name,
         std::cout << "Please check if the index is present in the directory." << std::endl;
         exit(1);
     }
-
+    
+    // Get the sketch info from a file
     std::vector<std::string> files_to_read;
     // first read the number of files
     int num_files;
@@ -321,7 +363,7 @@ std::vector<SketchInfo> MultiSketchIndex::load_from_file(std::string index_name,
     for (int i = 0; i < num_files; i++) {
         std::string filename;
         summary_file >> filename;
-        std::string filename_with_path = directory_name + '/' + filename;
+        std::string filename_with_path = index_directory_name + '/' + filename;
         files_to_read.push_back(filename_with_path);
     }
 
@@ -356,30 +398,7 @@ std::vector<SketchInfo> MultiSketchIndex::load_from_file(std::string index_name,
 
     summary_file.close();
 
-    // now load the individual files
-    num_threads = std::min(num_threads, num_files);
-    std::vector<std::thread> threads;
-    int num_chunks_this_thread = num_files / num_threads;
-    for (int i = 0; i < num_threads; i++) {
-        int start_index = i * num_chunks_this_thread;
-        int end_index = (i == num_threads - 1) ? num_files : (i + 1) * num_chunks_this_thread;
-        threads.push_back(std::thread(&MultiSketchIndex::load_one_chunk, 
-                            this, 
-                            files_to_read, 
-                            start_index, 
-                            end_index));
-    }
-
-    for (int i = 0; i < num_threads; i++) {
-        threads[i].join();
-    }
-
-    return info_of_sketches;
-
-}
-
-
-bool MultiSketchIndex::hash_exists(hash_t hash_value) const {
-    int idx_of_hash = index_of_hash(hash_value);
-    return multiple_sketch_indices[idx_of_hash].find(hash_value) != multiple_sketch_indices[idx_of_hash].end();
+    return std::make_tuple(num_files, 
+                            info_of_sketches, 
+                            files_to_read);
 }
