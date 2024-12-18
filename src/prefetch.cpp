@@ -31,11 +31,9 @@ using json = nlohmann::json;
 
 struct Arguments {
     string query_path;
-    string ref_filelist;
+    string ref_index_name;
     string output_filename;
-    int number_of_threads;
     int threshold_bp;
-    int num_hashtables;
 };
 
 
@@ -47,66 +45,59 @@ typedef unsigned long long int hash_t;
 void do_prefetch(Arguments& args) {
     // data structures
     Sketch query_sketch; 
-    vector<string> ref_sketch_paths;
-    vector<Sketch> ref_sketches;
-    vector<int> empty_sketch_ids;
-    MultiSketchIndex ref_index(args.num_hashtables);
+    string ref_index_name;
 
     // Read the query sketch and the reference sketches
-    auto read_start = chrono::high_resolution_clock::now();
-    cout << "Reading all reference sketches and the query sketch using " << args.number_of_threads << " threads" << endl;
+    cout << "Reading query sketch.." << endl;
     query_sketch = read_min_hashes(args.query_path);
-    bool success = get_sketch_paths(args.ref_filelist, ref_sketch_paths);
-    if (!success) {
-        cerr << "Error in reading the reference sketch paths." << endl;
-        exit(1);
+
+    // build a map of the hash_values in the query sketch for fast presence/absence lookup
+    unordered_set<hash_t> query_sketch_set;
+    for (hash_t hash_value : query_sketch.hashes) {
+        query_sketch_set.insert(hash_value);
     }
-    read_sketches(ref_sketch_paths, ref_sketches, empty_sketch_ids, args.number_of_threads);
+
+    cout << "Now reading reference index and searching matches against the query.." << endl;
+    string index_directory_name = extract_if_tar_gz(args.ref_index_name);
+    auto all_info = get_sketch_info_from_file(index_directory_name);
+    vector<SketchInfo> info_of_references = get<0>(all_info);
+    vector<string> chunk_filenames = get<1>(all_info);
+    int num_references = info_of_references.size();
     
-    // read complete, show time taken
-    auto read_end = chrono::high_resolution_clock::now();
-    auto read_duration = chrono::duration_cast<chrono::seconds>(read_end - read_start);
-    cout << "Completed reading one query and " << ref_sketches.size() << " reference sketches." << endl;
-    cout << "Reading completed in " << read_duration.count() << " seconds." << endl;
-
-    // compute the number of hashes in the reference sketches
-    size_t num_total_hashes_in_ref = 0;
-    for (Sketch ref_sketch : ref_sketches) {
-        num_total_hashes_in_ref += ref_sketch.size();
-    }
-
-    // show num of hashes in query and ref
-    cout << "Number of kmers in query: " << query_sketch.size() << endl;
-    cout << "Number of kmers in all the references: " << num_total_hashes_in_ref << endl;
-
-    // Compute the index from the reference sketches
-    auto start = chrono::high_resolution_clock::now();
-    cout << "Building an index on all the reference kmers... (will take some time)" << endl;
-    compute_index_from_sketches(ref_sketches, ref_index, args.number_of_threads);
-    auto end = chrono::high_resolution_clock::now();
-    auto duration_in_seconds = chrono::duration_cast<chrono::seconds>(end - start);
-    cout << "Index building completed in " << duration_in_seconds.count() << " seconds." << endl;
-
-    // show num of hashes in ref
-    cout << "Number of distinct kmers in the references: " << ref_index.size() << endl;
-
-    // start prefetch
-    cout << "Now searching the query kmers against the reference kmers..." << endl;
-    size_t* num_intersection_values = new size_t[ref_sketches.size()];
-    for (size_t i = 0; i < ref_sketches.size(); i++) {
+    size_t* num_intersection_values = new size_t[num_references];
+    for (size_t i = 0; i < num_references; i++) {
         num_intersection_values[i] = 0;
     }
 
-    for (hash_t hash_value : query_sketch.hashes) {
-        const vector<int> matching_ref_ids = ref_index.get_sketch_indices(hash_value);
-        for (int ref_id : matching_ref_ids) {
-            num_intersection_values[ref_id]++;
+    for (string chunk_file_name : chunk_filenames) {
+        std::ifstream file(chunk_file_name, std::ios::binary);
+        if (!file.is_open()) {
+            std::cout << "Error: Could not open file " << chunk_file_name << std::endl;
+            exit(1);
+        }
+        while (file.peek() != EOF) {
+            hash_t hash_value;
+            file.read(reinterpret_cast<char*>(&hash_value), sizeof(hash_t));
+            int num_sketch_indices;
+            file.read(reinterpret_cast<char*>(&num_sketch_indices), sizeof(int));
+            std::vector<int> sketch_indices;
+            for (int j = 0; j < num_sketch_indices; j++) {
+                int sketch_index;
+                file.read(reinterpret_cast<char*>(&sketch_index), sizeof(int));
+                sketch_indices.push_back(sketch_index);
+            }
+            // if the hash value is in the query sketch, increment the number of intersections
+            if (query_sketch_set.find(hash_value) != query_sketch_set.end()) {
+                for (int sketch_index : sketch_indices) {
+                    num_intersection_values[sketch_index]++;
+                }
+            }
         }
     }
     
     // now sort the ref sketches based on the number of intersections
     vector<tuple<int, size_t>> ref_id_num_intersections;
-    for (int i = 0; i < ref_sketches.size(); i++) {
+    for (int i = 0; i < num_references; i++) {
         ref_id_num_intersections.push_back(make_tuple(i, num_intersection_values[i]));
     }
 
@@ -117,25 +108,32 @@ void do_prefetch(Arguments& args) {
 
     // write the results to the output file
     ofstream outfile(args.output_filename);
-    outfile << "ref_id,num_intersections,containment_query_ref,containment_ref_query,jaccard" << endl;
+    outfile << "match_id,match_name,match_md5,num_intersections,containment_query_ref,containment_ref_query,max_containment,jaccard" << endl;
     for (auto ref_id_num_intersection : ref_id_num_intersections) {
+        
         int ref_id = get<0>(ref_id_num_intersection);
         size_t num_intersection = get<1>(ref_id_num_intersection);
-        if (num_intersection < args.threshold_bp) {
+        
+        if (num_intersection < args.threshold_bp || num_intersection == 0) {
             break;
         }
+        if (query_sketch.size() == 0 || info_of_references[ref_id].sketch_size == 0) {
+            continue;
+        }
+        
+        string match_name = info_of_references[ref_id].name;
+        string match_md5 = info_of_references[ref_id].md5;
         double containment_query_ref = 1.0 * num_intersection / query_sketch.size();
-        double containment_ref_query = 1.0 * num_intersection / ref_sketches[ref_id].size();
-        double jaccard = 1.0 * num_intersection / (query_sketch.size() + ref_sketches[ref_id].size() - num_intersection);
-        outfile << ref_id << "," << num_intersection << "," << containment_query_ref << "," << containment_ref_query << "," << jaccard << endl;
+        double containment_ref_query = 1.0 * num_intersection / info_of_references[ref_id].sketch_size;
+        double max_containment = max(containment_query_ref, containment_ref_query);
+        double jaccard = 1.0 * num_intersection / (query_sketch.size() + info_of_references[ref_id].sketch_size - num_intersection);
+        
+        outfile << ref_id << "," << match_name << "," << match_md5 << "," << num_intersection << "," << containment_query_ref << "," << containment_ref_query << "," << max_containment << "," << jaccard << endl;
     }
 
     outfile.close();
     cout << "Results written to " << args.output_filename << endl;
     cout << "Cleaning up and exiting... (may take some time)" << endl;
-
-    // clean up
-    delete[] num_intersection_values;
     
 }
 
@@ -149,33 +147,21 @@ void parse_args(int argc, char** argv, Arguments &arguments) {
         .required()
         .store_into(arguments.query_path);
 
-    parser.add_argument("ref_filelist")
-        .help("The path to the file containing the paths to the reference sketches")
+    parser.add_argument("ref_index_name")
+        .help("The name of the index of the target references")
         .required()
-        .store_into(arguments.ref_filelist);
+        .store_into(arguments.ref_index_name);
 
     parser.add_argument("output_filename")
         .help("The path to the output file")
         .required()
         .store_into(arguments.output_filename);
-
-    parser.add_argument("-t", "--threads")
-        .help("The number of threads to use")
-        .scan<'i', int>()
-        .default_value(1)
-        .store_into(arguments.number_of_threads);
     
     parser.add_argument("-b", "--threshold-bp")
         .help("The threshold in base pairs")
         .scan<'i', int>()
         .default_value(50)
         .store_into(arguments.threshold_bp);
-
-    parser.add_argument("-n", "--num-hashtables")
-        .help("The number of hash tables to use")
-        .scan<'i', int>()
-        .default_value(4096)
-        .store_into(arguments.num_hashtables);
 
     try {
         parser.parse_args(argc, argv);
@@ -192,11 +178,9 @@ void show_args(Arguments &args) {
     cout << "**************************************" << endl;
     cout << "*" << endl;
     cout << "*   Query path: " << args.query_path << endl;
-    cout << "*   Ref filelist: " << args.ref_filelist << endl;
+    cout << "*   Reference index name: " << args.ref_index_name << endl;
     cout << "*   Output filename: " << args.output_filename << endl;
-    cout << "*   Number of threads: " << args.number_of_threads << endl;
     cout << "*   Threshold in base pairs: " << args.threshold_bp << endl;
-    cout << "*   Number of hash tables in the index: " << args.num_hashtables << endl;
     cout << "*" << endl;
     cout << "**************************************" << endl;
 } 
@@ -214,6 +198,6 @@ int main(int argc, char** argv) {
     show_args(arguments);
     do_prefetch(arguments);    
 
-    return 0;
+    exit(0);
 
 }
