@@ -61,7 +61,7 @@ void do_compare(Arguments& args) {
     cout << "Reading the target index..." << endl;
     auto target_start = chrono::high_resolution_clock::now();
     // load the index
-    vector<SketchInfo> info_of_target_sketches = target_sketch_index.load_from_file(args.ref_index_name);
+    vector<SketchInfo> info_of_target_sketches = target_sketch_index.load_from_file(args.ref_index_name, args.number_of_threads);
     auto target_end = chrono::high_resolution_clock::now();
     auto target_duration = chrono::duration_cast<chrono::seconds>(target_end - target_start);
     cout << "Target index loaded in " << target_duration.count() << " seconds." << endl;

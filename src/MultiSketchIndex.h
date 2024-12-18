@@ -23,6 +23,26 @@ typedef unsigned long long int hash_t;
 
 
 /**
+ * @brief Get all the info of the sketches from the index directory (reads the summary file only)
+ * 
+ * @param index_directory_name The directory where the index is stored.
+ * @return std::tuple<std::vector<SketchInfo>, std::vector<std::string>> The info of all the sketches, and the individual chunk files with path.
+ */
+std::tuple< std::vector<SketchInfo>,
+            std::vector<std::string>
+                >         
+            get_sketch_info_from_file(std::string index_directory_name);
+
+
+/**
+ * @brief Extract the tar.gz file and return the name of the extracted directory if the file is a tar.gz file.
+ * Otherwise, return the same name.
+ */
+std::string extract_if_tar_gz(std::string index_name);
+
+
+
+/**
  * @brief MultiSketchIndex class, which is used to store the index of many sketches.
  * 
  */
@@ -124,10 +144,13 @@ class MultiSketchIndex {
          * @param directory_name the directory where the index is stored.
          * @return std::pair<std::vector<std::string>, std::vector<size_t>> genome names vector and sketch sizes vector
          */
-        std::vector<SketchInfo> load_from_file(std::string directory_name);
+        std::vector<SketchInfo> load_from_file(std::string directory_name,
+                                               int num_threads);
 
 
-
+        /**
+         * @brief show some stats of the index (for debugging purposes)
+         */
         void show_index_stats() {
             std::cout << "Number of indices: " << num_of_indices << std::endl;
             std::cout << "Index size: " << size() << std::endl;
@@ -137,7 +160,13 @@ class MultiSketchIndex {
             }
         }
 
-
+        /**
+         * @brief check if two MultiSketchIndex objects are equal (checks content only, not separate hashtables)
+         * 
+         * @param other the other MultiSketchIndex object
+         * @return true if the two objects are equal
+         * @return false if the two objects are not equal
+         */
         bool operator==(const MultiSketchIndex &other) {
             // iterate over all the hash values
             for (int i = 0; i < num_of_indices; i++) {
@@ -169,6 +198,9 @@ class MultiSketchIndex {
         }
 
 
+        /**
+         * @brief get all the hash values in the index
+         */
         std::vector<hash_t> get_all_hashes() {
             std::vector<hash_t> all_hashes;
             for (int i = 0; i < num_of_indices; i++) {
@@ -184,6 +216,7 @@ class MultiSketchIndex {
         std::vector<std::unordered_map<hash_t, std::vector<int>>> multiple_sketch_indices;
         std::vector<std::mutex>mutexes;
         int num_of_indices;
+        const std::vector<int> empty_vector;
 
         /**
          * @brief given a hash value, get the index of the hash_table where this hash value should be stored.
@@ -195,7 +228,7 @@ class MultiSketchIndex {
             return hash_value % num_of_indices;
         }
 
-        const std::vector<int> empty_vector;
+        
 
         /**
          * @brief helper function to write one chunk of the index to a file.
@@ -212,9 +245,13 @@ class MultiSketchIndex {
         /**
          * @brief load the contents of this file into the hash index
          * 
-         * @param file 
+         * @param chunk_filenames vector of all the filenames (of individual chunks in the index)
+         * @param start_index index of the first chunk file to read in this thread
+         * @param end_index index of the last chunk file to read in this thread + 1
          */
-        void load_one_chunk(std::string filename);
+        void load_one_chunk(std::vector<std::string> chunk_filenames,
+                            int start_index, 
+                            int end_index);
         
 };
 
