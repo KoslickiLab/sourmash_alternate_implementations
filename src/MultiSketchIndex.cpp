@@ -370,6 +370,10 @@ std::vector<SketchInfo> MultiSketchIndex::load_from_file(std::string index_name,
                             end_index));
     }
 
+    for (int i = 0; i < num_threads; i++) {
+        threads[i].join();
+    }
+
     return info_of_sketches;
 
 }
