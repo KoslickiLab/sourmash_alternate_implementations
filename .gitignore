@@ -9,3 +9,6 @@ test/data/filelist*.txt
 test/data/archived_index_100.tar.gz
 test/data/index_100.tar.gz
 test/data/*index*/*
+benchmark/__pycache__/utils.cpython-311.pyc
+benchmark/__pycache__/utils.cpython-313.pyc
+benchmark/__pycache__/utils.cpython-310.pyc
