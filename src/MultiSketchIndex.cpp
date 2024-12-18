@@ -244,17 +244,17 @@ std::vector<SketchInfo> MultiSketchIndex::load_from_file(std::string index_name,
 
     // now read the index summary file and get all the info
     auto all_info = get_sketch_info_from_file(directory_name);
-    int num_files = std::get<0>(all_info);
-    std::vector<SketchInfo> info_of_sketches = std::get<1>(all_info);
-    std::vector<std::string> files_to_read = std::get<2>(all_info);
+    std::vector<SketchInfo> info_of_sketches = std::get<0>(all_info);
+    std::vector<std::string> files_to_read = std::get<1>(all_info);
+    int num_references = info_of_sketches.size();
 
     // now load the individual files
-    num_threads = std::min(num_threads, num_files);
+    num_threads = std::min(num_threads, num_references);
     std::vector<std::thread> threads;
-    int num_chunks_this_thread = num_files / num_threads;
+    int num_chunks_this_thread = num_references / num_threads;
     for (int i = 0; i < num_threads; i++) {
         int start_index = i * num_chunks_this_thread;
-        int end_index = (i == num_threads - 1) ? num_files : (i + 1) * num_chunks_this_thread;
+        int end_index = (i == num_threads - 1) ? num_references : (i + 1) * num_chunks_this_thread;
         threads.push_back(std::thread(&MultiSketchIndex::load_one_chunk, 
                             this, 
                             files_to_read, 
@@ -278,11 +278,10 @@ bool MultiSketchIndex::hash_exists(hash_t hash_value) const {
 
 
 
-std::tuple<int,
-            std::vector<SketchInfo>,
+std::tuple< std::vector<SketchInfo>,
             std::vector<std::string>
-            >         
-        get_sketch_info_from_file(std::string index_directory_name) {
+                >         
+            get_sketch_info_from_file(std::string index_directory_name) {
     // Load an index from a file
     std::string summary_filename = index_directory_name + "/summary";
     std::ifstream summary_file(summary_filename);   
@@ -338,8 +337,7 @@ std::tuple<int,
 
     summary_file.close();
 
-    return std::make_tuple(num_files, 
-                            info_of_sketches, 
+    return std::make_tuple( info_of_sketches, 
                             files_to_read);
 }
 

@@ -26,12 +26,11 @@ typedef unsigned long long int hash_t;
  * @brief Get all the info of the sketches from the index directory (reads the summary file only)
  * 
  * @param index_directory_name The directory where the index is stored.
- * @return std::tuple<int, std::vector<SketchInfo>, std::vector<std::string>> The number of references, the info of all the sketches, and the names of the references.
+ * @return std::tuple<std::vector<SketchInfo>, std::vector<std::string>> The info of all the sketches, and the individual chunk files with path.
  */
-std::tuple<int,
-            std::vector<SketchInfo>,
+std::tuple< std::vector<SketchInfo>,
             std::vector<std::string>
-            >         
+                >         
             get_sketch_info_from_file(std::string index_directory_name);
 
 
