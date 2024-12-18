@@ -17,6 +17,7 @@ struct Arguments {
     int number_of_threads;
     int num_hashtables;
     bool store_archive;
+    bool force_write;
 };
 
 
@@ -56,6 +57,12 @@ void parse_args(int argc, char** argv, Arguments &arguments) {
         .implicit_value(true)
         .store_into(arguments.store_archive);
 
+    parser.add_argument("-f", "--force-write")
+        .help("Force write the index to the directory")
+        .default_value(false)
+        .implicit_value(true)
+        .store_into(arguments.force_write);
+
     try {
         parser.parse_args(argc, argv);
     } catch (const std::runtime_error &err) {
@@ -76,6 +83,7 @@ void show_arguments(Arguments &arguments) {
     cout << "*  number_of_threads: " << arguments.number_of_threads << endl;
     cout << "*  num_hashtables: " << arguments.num_hashtables << endl;
     cout << "*  store_archive: " << arguments.store_archive << endl;
+    cout << "*  force_write: " << arguments.force_write << endl;
     cout << "* " << endl;
     cout << "*********************************" << endl;
 }
@@ -120,12 +128,14 @@ int main(int argc, char** argv) {
     bool success = multi_sketch_index.write_to_file(arguments.index_directory_name, 
                                             arguments.number_of_threads, 
                                             info_of_sketches,
-                                            arguments.store_archive);
+                                            arguments.store_archive,
+                                            arguments.force_write);
     if (!success) {
         cout << "Error writing index to file." << endl;
         exit(1);
     }
     cout << "Index written successfully." << endl;
 
+    exit(0);
 
 }
