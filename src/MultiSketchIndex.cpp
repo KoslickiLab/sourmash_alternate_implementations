@@ -212,27 +212,32 @@ bool MultiSketchIndex::write_to_file(std::string directory_name,
 
 
 
-void MultiSketchIndex::load_one_chunk(std::string filename) {
-    // Load one chunk of the index from a file
-    std::ifstream input_file(filename, std::ios::binary);
-    hash_t hash_value;
-    int num_sketch_indices;
-    while (input_file.read(reinterpret_cast<char*>(&hash_value), sizeof(hash_t))) {
-        input_file.read(reinterpret_cast<char*>(&num_sketch_indices), sizeof(int));
-        std::vector<int> sketch_indices;
-        for (int i = 0; i < num_sketch_indices; i++) {
-            int sketch_index;
-            input_file.read(reinterpret_cast<char*>(&sketch_index), sizeof(int));
-            sketch_indices.push_back(sketch_index);
+void MultiSketchIndex::load_one_chunk(std::vector<std::string> chunk_filenames,
+                                        int start_index, int end_index) {
+    // Load the chunk files from start_index to end_index-1
+    for (int i = start_index; i < end_index; i++) {
+        std::ifstream file(chunk_filenames[i], std::ios::binary);
+        while (file.peek() != EOF) {
+            hash_t hash_value;
+            file.read(reinterpret_cast<char*>(&hash_value), sizeof(hash_t));
+            int num_sketch_indices;
+            file.read(reinterpret_cast<char*>(&num_sketch_indices), sizeof(int));
+            std::vector<int> sketch_indices;
+            for (int j = 0; j < num_sketch_indices; j++) {
+                int sketch_index;
+                file.read(reinterpret_cast<char*>(&sketch_index), sizeof(int));
+                sketch_indices.push_back(sketch_index);
+            }
+            add_hash(hash_value, sketch_indices);
         }
-        add_hash(hash_value, sketch_indices);
     }
 }
 
 
 
 
-std::vector<SketchInfo> MultiSketchIndex::load_from_file(std::string index_name){
+std::vector<SketchInfo> MultiSketchIndex::load_from_file(std::string index_name,
+                                                            int num_threads) {
 
     // check if index_name is a tar.gz archive
     bool tar_gz = false;
@@ -352,14 +357,17 @@ std::vector<SketchInfo> MultiSketchIndex::load_from_file(std::string index_name)
     summary_file.close();
 
     // now load the individual files
+    num_threads = std::min(num_threads, num_files);
     std::vector<std::thread> threads;
-    for (int i = 0; i < num_files; i++) {
-        threads.push_back(std::thread(&MultiSketchIndex::load_one_chunk, this, files_to_read[i]));
-    }
-
-    // wait for all the threads to finish
-    for (int i = 0; i < num_files; i++) {
-        threads[i].join();
+    int num_chunks_this_thread = num_files / num_threads;
+    for (int i = 0; i < num_threads; i++) {
+        int start_index = i * num_chunks_this_thread;
+        int end_index = (i == num_threads - 1) ? num_files : (i + 1) * num_chunks_this_thread;
+        threads.push_back(std::thread(&MultiSketchIndex::load_one_chunk, 
+                            this, 
+                            files_to_read, 
+                            start_index, 
+                            end_index));
     }
 
     return info_of_sketches;

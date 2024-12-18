@@ -124,7 +124,8 @@ class MultiSketchIndex {
          * @param directory_name the directory where the index is stored.
          * @return std::pair<std::vector<std::string>, std::vector<size_t>> genome names vector and sketch sizes vector
          */
-        std::vector<SketchInfo> load_from_file(std::string directory_name);
+        std::vector<SketchInfo> load_from_file(std::string directory_name,
+                                               int num_threads);
 
 
 
@@ -212,9 +213,13 @@ class MultiSketchIndex {
         /**
          * @brief load the contents of this file into the hash index
          * 
-         * @param file 
+         * @param chunk_filenames vector of all the filenames (of individual chunks in the index)
+         * @param start_index index of the first chunk file to read in this thread
+         * @param end_index index of the last chunk file to read in this thread + 1
          */
-        void load_one_chunk(std::string filename);
+        void load_one_chunk(std::vector<std::string> chunk_filenames,
+                            int start_index, 
+                            int end_index);
         
 };
 
