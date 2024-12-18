@@ -226,6 +226,6 @@ int main( int argc, char** argv ) {
     show_args(arguments);
     do_compare(arguments);
 
-    return 0;
+    exit(0);
 
 }
