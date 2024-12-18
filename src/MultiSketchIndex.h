@@ -22,6 +22,14 @@ typedef unsigned long long int hash_t;
 #endif
 
 
+std::tuple<int,
+            std::vector<SketchInfo>,
+            std::vector<std::string>
+            >         
+            get_sketch_info_from_file(std::string index_directory_name);
+
+
+
 /**
  * @brief MultiSketchIndex class, which is used to store the index of many sketches.
  * 
@@ -190,13 +198,6 @@ class MultiSketchIndex {
             }
             return all_hashes;
         }
-
-
-        static std::tuple<int,
-                        std::vector<SketchInfo>,
-                        std::vector<std::string>
-                        >         
-                        get_sketch_info_from_file(std::string index_directory_name);
 
         
     private:

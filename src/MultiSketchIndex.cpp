@@ -303,7 +303,7 @@ std::vector<SketchInfo> MultiSketchIndex::load_from_file(std::string index_name,
     }
 
     // now load the index
-    std::tuple<int, std::vector<SketchInfo>, std::vector<std::string>> all_info = get_sketch_info_from_file(directory_name);
+    auto all_info = get_sketch_info_from_file(directory_name);
     int num_files = std::get<0>(all_info);
     std::vector<SketchInfo> info_of_sketches = std::get<1>(all_info);
     std::vector<std::string> files_to_read = std::get<2>(all_info);
@@ -338,7 +338,7 @@ bool MultiSketchIndex::hash_exists(hash_t hash_value) const {
 
 
 
-static std::tuple<int,
+std::tuple<int,
                         std::vector<SketchInfo>,
                         std::vector<std::string>
                         >         
