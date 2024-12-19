@@ -277,8 +277,13 @@ void compute_intersection_matrix_by_sketches(int query_sketch_start_index, int q
             double max_containment = std::max(containment_i_in_j, containment_j_in_i);
             double max_containment_ani = pow(max_containment, 1.0/ksize);
 
-            // write i, query_name, query_md5, j, ref_name, ref_md5, jaccard, containment_i_in_j, containment_j_in_i, max_containment, max_containment_ani
-            outfile << i << ",\"" << query_name << "\"," << query_md5 << "," << j << ",\"" << ref_name << "\"," << ref_md5 << "," << jaccard << "," << containment_i_in_j << "," << containment_j_in_i << "," << max_containment << "," << max_containment_ani << std::endl;
+            // write i, query_name, query_md5, quey_sketch_size, j, ref_name, ref_md5, ref_sketch_size, jaccard, containment_i_in_j, containment_j_in_i, max_containment, max_containment_ani
+            outfile << i << ",\"" << query_name << "\"," << query_md5 << "," << 
+                    sketches_query[i].size() << "," << j << ",\"" << ref_name << "\"," << 
+                    ref_md5 << "," << info_of_ref_sketches[j].size() << "," << jaccard << "," << 
+                    containment_i_in_j << "," << containment_j_in_i << "," << max_containment << "," << 
+                    max_containment_ani << std::endl;
+            //outfile << i << ",\"" << query_name << "\"," << query_md5 << "," << j << ",\"" << ref_name << "\"," << ref_md5 << "," << jaccard << "," << containment_i_in_j << "," << containment_j_in_i << "," << max_containment << "," << max_containment_ani << std::endl;
             
             similars[i].push_back(j);
         }
