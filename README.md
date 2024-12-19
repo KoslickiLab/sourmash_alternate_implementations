@@ -18,14 +18,16 @@ All tool usages are available using `--help` flag.
 
 ## `compare` output format
 1. Index of query
-2. Name of query
-3. MD5 of query
-4. Index of match
-5. Name of match
-6. MD5 of match
-7. Jaccard
-8. Containment(query, target)
-9. Containment(target, query)
+1. Name of query
+1. MD5 of query
+1. Size of the query sketch
+1. Index of match
+1. Name of match
+1. MD5 of match
+1. Size of the matched reference sketch
+1. Jaccard
+1. Containment(query, target)
+1. Containment(target, query)
 
 
 # Testing

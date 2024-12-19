@@ -102,7 +102,7 @@ void do_compare(Arguments& args) {
 
     // write the header in the output file
     ofstream output_file(args.output_filename);
-    output_file << "query_id, query_name, query_md5, match_id, match_name, match_md5, jaccard, containment_query_in_match, containment_match_in_query, max_containment, max_containment_ani" << endl;
+    output_file << "query_id,query_name,query_md5,query_sketch_size,match_id,match_name,match_md5,match_sketch_size,jaccard,containment_query_in_match,containment_match_in_query,max_containment,max_containment_ani" << endl;
     output_file.close();
 
     // combining command: cat 

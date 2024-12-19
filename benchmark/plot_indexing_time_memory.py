@@ -12,7 +12,7 @@ df_cpp_index_128_threads = pd.read_csv('benchmark_results_index_128_threads.csv'
 # col names: filesize,cpu_time,wall_clock_time,peak_memory_usage
 
 # plot wall-clock time against file size
-plt.plot(df_sourmash_index['filesize'], df_sourmash_index['wall_clock_time'], label='sourmash index', marker='o')
+plt.plot(df_sourmash_index['filesize'], df_sourmash_index['wall_clock_time'], label='sourmash index (1 thread)', marker='o')
 plt.plot(df_cpp_index_one_thread['filesize'], df_cpp_index_one_thread['wall_clock_time'], label='cpp index (1 thread)', marker='o')
 plt.plot(df_cpp_index_128_threads['filesize'], df_cpp_index_128_threads['wall_clock_time'], label='cpp index (128 threads)', marker='o')
 
@@ -26,7 +26,7 @@ plt.savefig('plots/benchmark_results_indexing_wall_clock_time.pdf')
 
 # plot cpu time against file size
 plt.clf()
-plt.plot(df_sourmash_index['filesize'], df_sourmash_index['cpu_time'], label='sourmash index', marker='o')
+plt.plot(df_sourmash_index['filesize'], df_sourmash_index['cpu_time'], label='sourmash index (1 thread)', marker='o')
 plt.plot(df_cpp_index_one_thread['filesize'], df_cpp_index_one_thread['cpu_time'], label='cpp index (1 thread)', marker='o')
 plt.plot(df_cpp_index_128_threads['filesize'], df_cpp_index_128_threads['cpu_time'], label='cpp index (128 threads)', marker='o')
 
@@ -40,7 +40,7 @@ plt.savefig('plots/benchmark_results_indexing_cpu_time.pdf')
 
 # plot peak memory usage against file size
 plt.clf()
-plt.plot(df_sourmash_index['filesize'], df_sourmash_index['peak_memory_usage'], label='sourmash index', marker='o')
+plt.plot(df_sourmash_index['filesize'], df_sourmash_index['peak_memory_usage'], label='sourmash index (1 thread)', marker='o')
 plt.plot(df_cpp_index_one_thread['filesize'], df_cpp_index_one_thread['peak_memory_usage'], label='cpp index (1 thread)', marker='o')
 plt.plot(df_cpp_index_128_threads['filesize'], df_cpp_index_128_threads['peak_memory_usage'], label='cpp index (128 threads)', marker='o')
 
