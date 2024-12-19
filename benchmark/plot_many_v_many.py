@@ -34,6 +34,21 @@ plt.grid(linestyle='--', alpha=0.3)
 plt.savefig('plots/benchmark_results_compare_many_v_many_wall_clock_time.pdf')
 
 
+# plot CPU time for query file size = 30000, use different reference file sizes in x-axis
+plt.clf()
+plt.plot(df_compare_30000['ref_filesize'], df_compare_30000['cpu_time'], label='compare (cpp)', marker='o')
+plt.plot(df_compare_without_index_30000['ref_filesize'], df_compare_without_index_30000['cpu_time'], label='compare (cpp) without index', marker='o')
+plt.plot(df_multisearch_30000['ref_filesize'], df_multisearch_30000['cpu_time'], label='multisearch (sourmash)', marker='o')
+
+plt.xlabel('Reference list size')
+plt.ylabel('CPU time (s)')
+plt.title('CPU time for 30k queries')
+plt.xticks(df_compare_30000['ref_filesize'])
+plt.legend()
+plt.grid(linestyle='--', alpha=0.3)
+plt.savefig('plots/benchmark_results_compare_many_v_many_cpu_time.pdf')
+
+
 # plot peak memory usage for query file size = 30000, use different reference file sizes in x-axis
 plt.clf()
 plt.plot(df_compare_30000['ref_filesize'], df_compare_30000['peak_memory_usage'], label='compare (cpp)', marker='o')
@@ -81,3 +96,18 @@ plt.xticks(df_compare_30000['query_filesize'])
 plt.legend()
 plt.grid(linestyle='--', alpha=0.3)
 plt.savefig('plots/benchmark_results_compare_many_v_many_peak_memory_usage_query.pdf')
+
+
+# plot CPU time for ref file size = 30000, use different query file sizes in x-axis
+plt.clf()
+plt.plot(df_compare_30000['query_filesize'], df_compare_30000['cpu_time'], label='compare (cpp)', marker='o')
+plt.plot(df_compare_without_index_30000['query_filesize'], df_compare_without_index_30000['cpu_time'], label='compare (cpp) without index', marker='o')
+plt.plot(df_multisearch_30000['query_filesize'], df_multisearch_30000['cpu_time'], label='multisearch (sourmash)', marker='o')
+
+plt.xlabel('Query list size')
+plt.ylabel('CPU time (s)')
+plt.title('CPU time for 30k references')
+plt.xticks(df_compare_30000['query_filesize'])
+plt.legend()
+plt.grid(linestyle='--', alpha=0.3)
+plt.savefig('plots/benchmark_results_compare_many_v_many_cpu_time_query.pdf')
