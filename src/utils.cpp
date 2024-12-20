@@ -42,7 +42,7 @@ Sketch read_min_hashes(const std::string& json_filename) {
     }
     
     try {
-        md5 = jsonData[0]["md5"];
+        md5 = jsonData[0]["md5sum"];
     } catch (json::exception& e) {
         // crash
         //std::cerr << "Error: " << e.what() << std::endl;
