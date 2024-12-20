@@ -123,6 +123,7 @@ bool MultiSketchIndex::write_to_file(std::string directory_name,
                                     int num_threads, 
                                     std::vector<SketchInfo> info_of_sketches,
                                     bool store_archive,
+                                    std::string archive_name,
                                     bool force_write) {
     // check if the directory exists, if not then create it
     struct stat info;
@@ -193,20 +194,22 @@ bool MultiSketchIndex::write_to_file(std::string directory_name,
     }
 
     output_file.close();
+    std::cout << "Index written to " << directory_name << std::endl;
 
-    if (store_archive) {
-        std::cout << "Storing archive..." << std::endl;
-        std::string archive_name = directory_name + ".tar.gz";
-        std::string command = "tar -czf " + archive_name + " -C " + directory_name + " .";
-        std::cout << command << std::endl;
-        if (system(command.c_str()) != 0) {
-            std::cout << "Error storing archive." << std::endl;
-            return false;
-        }
-        std::cout << "Archive stored to " << archive_name << std::endl;
+    if (!store_archive) {
+        return true;
     }
 
+    std::cout << "Storing archive..." << std::endl;
+    std::string command = "tar -czf " + archive_name + " -C " + directory_name + " .";
+    std::cout << command << std::endl;
+    if (system(command.c_str()) != 0) {
+        std::cout << "Error storing archive." << std::endl;
+        return false;
+    }
+    std::cout << "Archive stored to " << archive_name << std::endl;
     return true;
+    
 }
 
 

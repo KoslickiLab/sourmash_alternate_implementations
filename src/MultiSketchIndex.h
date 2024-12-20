@@ -136,6 +136,7 @@ class MultiSketchIndex {
                                     int num_threads, 
                                     std::vector<SketchInfo> info_of_sketches,
                                     bool store_archive,
+                                    std::string archive_name,
                                     bool force_write);
 
         /**
