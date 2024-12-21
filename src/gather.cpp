@@ -32,6 +32,7 @@ using json = nlohmann::json;
 struct Arguments {
     string query_path;
     string ref_filelist;
+    string ref_index_name;
     string output_filename;
     int number_of_threads;
     int threshold_bp;
@@ -79,13 +80,13 @@ void do_gather(Arguments& args) {
     cout << "Number of kmers in query: " << query_sketch.size() << endl;
     cout << "Number of kmers in all the references: " << num_total_hashes_in_ref << endl;
 
-    // Compute the index from the reference sketches
+    // load the index
     auto start = chrono::high_resolution_clock::now();
-    cout << "Building an index on all the reference kmers... (will take some time)" << endl;
-    compute_index_from_sketches(ref_sketches, ref_index, args.number_of_threads);
+    cout << "loading the index of the references... (will take some time)" << endl;
+    ref_index.load_from_file(args.ref_index_name, args.number_of_threads);
     auto end = chrono::high_resolution_clock::now();
     auto duration_in_seconds = chrono::duration_cast<chrono::seconds>(end - start);
-    cout << "Index building completed in " << duration_in_seconds.count() << " seconds." << endl;
+    cout << "Index loading completed in " << duration_in_seconds.count() << " seconds." << endl;
 
     // show num of hashes in ref
     cout << "Number of distinct kmers in the references: " << ref_index.size() << endl;
@@ -145,7 +146,7 @@ void do_gather(Arguments& args) {
         
 
         // if overlap is below threshold then stop
-        if (max_intersection_value < args.threshold_bp) {
+        if (max_intersection_value < args.threshold_bp || max_intersection_value == 0) {
             cout << "Matched " << max_intersection_ref_id+1 << "\t-th genome, overlap now: " << max_intersection_value << endl;
             cout << "Num overlap is less than the threshold of " << args.threshold_bp << " bp. Stopping gather..." << endl;
             break;
@@ -236,6 +237,11 @@ void parse_args(int argc, char** argv, Arguments &arguments) {
         .required()
         .store_into(arguments.ref_filelist);
 
+    parser.add_argument("ref_index_name")
+        .help("The path to the index of these reference sketches (built using the index command)")
+        .required()
+        .store_into(arguments.ref_index_name);
+
     parser.add_argument("output_filename")
         .help("The path to the output file")
         .required()
@@ -275,6 +281,7 @@ void show_args(Arguments &args) {
     cout << "*" << endl;
     cout << "*   Query path: " << args.query_path << endl;
     cout << "*   Ref filelist: " << args.ref_filelist << endl;
+    cout << "*   Ref index: " << args.ref_index_name << endl;
     cout << "*   Output filename: " << args.output_filename << endl;
     cout << "*   Number of threads: " << args.number_of_threads << endl;
     cout << "*   Threshold in base pairs: " << args.threshold_bp << endl;
