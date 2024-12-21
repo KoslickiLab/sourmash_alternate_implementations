@@ -254,7 +254,7 @@ std::vector<SketchInfo> MultiSketchIndex::load_from_file(std::string index_name,
     int num_chunk_files = files_to_read.size();
 
     // now load the individual files
-    num_threads = std::min(num_threads, num_references);
+    num_threads = std::min(num_threads, num_chunk_files);
     std::vector<std::thread> threads;
     int num_chunks_this_thread = num_chunk_files / num_threads;
     for (int i = 0; i < num_threads; i++) {
