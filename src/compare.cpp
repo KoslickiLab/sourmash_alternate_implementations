@@ -100,19 +100,6 @@ void do_compare(Arguments& args) {
         }
     }
 
-    // create the directory of output file if it does not exist
-    string output_dir = args.output_filename.substr(0, args.output_filename.find_last_of("/"));
-    struct stat info;
-    if (stat(output_dir.c_str(), &info) != 0) {
-        cout << "The directory " << output_dir << " does not exist. Creating..." << endl;
-        // create the directory
-        string create_dir_command = "mkdir -p " + output_dir;
-        if (system(create_dir_command.c_str()) != 0) {
-            cerr << "Error in creating the directory " << output_dir << endl;
-            exit(1);
-        }
-    }
-
     // write the header in the output file
     ofstream output_file(args.output_filename);
     if (!output_file.is_open()) {
