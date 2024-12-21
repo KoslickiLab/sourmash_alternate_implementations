@@ -15,13 +15,73 @@ Sketch read_min_hashes(const std::string& json_filename) {
     json jsonData;
     inputFile >> jsonData;
 
+    // data
+    std::vector<hash_t> min_hashes;
+    std::string name;
+    std::string md5;
+    int ksize;
+    hash_t max_hash;
+    int seed;
+
     // Access and print values
-    std::vector<hash_t> min_hashes = jsonData[0]["signatures"][0]["mins"];
-    std::string name = jsonData[0]["name"];
-    std::string md5 = jsonData[0]["signatures"][0]["md5sum"];
-    int ksize = jsonData[0]["signatures"][0]["ksize"];
-    hash_t max_hash = jsonData[0]["signatures"][0]["max_hash"];
-    int seed = jsonData[0]["signatures"][0]["seed"];
+    try {
+        std::vector<hash_t> min_hashes_loaded = jsonData[0]["signatures"][0]["mins"];
+        min_hashes = min_hashes_loaded;
+    } catch (json::exception& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+        std::cerr << "Error: cannot find the mins in filename: " << json_filename << std::endl;
+        std::cerr << "Error: The file is may not be a valid sketch file!" << std::endl;
+        exit(1);
+    }
+    
+    try {
+        name = jsonData[0]["name"];
+    } catch (json::exception& e) {
+        std::cerr << "Warning: no name found in: " << json_filename << ", using empty string" << std::endl;
+        name = "";
+    }
+    
+    try {
+        md5 = jsonData[0]["signatures"][0]["md5sum"];
+    } catch (json::exception& e) {
+        // crash
+        //std::cerr << "Error: " << e.what() << std::endl;
+        //std::cerr << "Error: cannot find the md5 in filename: " << json_filename << std::endl;
+        //std::cerr << "Error: The file is may not be a valid sketch file!" << std::endl;
+        //exit(1);
+        std::cerr << "Warning: no md5 found in: " << json_filename << ", using empty string" << std::endl;
+        md5 = "";
+    }
+
+    try{
+        ksize = jsonData[0]["signatures"][0]["ksize"];
+    } catch (json::exception& e) {
+        // crash
+        std::cerr << "Error: " << e.what() << std::endl;
+        std::cerr << "Error: cannot find the ksize in filename: " << json_filename << std::endl;
+        std::cerr << "Error: The file is may not be a valid sketch file!" << std::endl;
+        exit(1);
+    }
+
+    try {
+        max_hash = jsonData[0]["signatures"][0]["max_hash"];
+    } catch (json::exception& e) {
+        // crash
+        std::cerr << "Error: " << e.what() << std::endl;
+        std::cerr << "Error: cannot find the max_hash in filename: " << json_filename << std::endl;
+        std::cerr << "Error: The file is may not be a valid sketch file!" << std::endl;
+        exit(1);
+    }
+    
+    try {
+        seed = jsonData[0]["signatures"][0]["seed"];
+    } catch (json::exception& e) {
+        // crash
+        std::cerr << "Error: " << e.what() << std::endl;
+        std::cerr << "Error: cannot find the seed in filename: " << json_filename << std::endl;
+        std::cerr << "Error: The file is may not be a valid sketch file!" << std::endl;
+        exit(1);
+    }
 
     // Close the file
     inputFile.close();
