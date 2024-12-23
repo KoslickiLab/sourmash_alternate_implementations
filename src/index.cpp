@@ -17,6 +17,7 @@ struct Arguments {
     int number_of_threads;
     int num_hashtables;
     bool store_archive;
+    string archive_name;
     bool force_write;
 };
 
@@ -35,7 +36,7 @@ void parse_args(int argc, char** argv, Arguments &arguments) {
         .store_into(arguments.filelist_sketches);
 
     parser.add_argument("index_directory_name")
-        .help("The directory where the index will be stored (needs to be empty)")
+        .help("The directory where the index will be stored (must be a directory)")
         .required()
         .store_into(arguments.index_directory_name);
 
@@ -56,6 +57,11 @@ void parse_args(int argc, char** argv, Arguments &arguments) {
         .default_value(false)
         .implicit_value(true)
         .store_into(arguments.store_archive);
+
+    parser.add_argument("-a", "--archive-name")
+        .help("The name of the archive (will be discarded if store-archive is false)")
+        .default_value("index.tar.gz")
+        .store_into(arguments.archive_name);
 
     parser.add_argument("-f", "--force-write")
         .help("Force write the index to the directory")
@@ -83,6 +89,7 @@ void show_arguments(Arguments &arguments) {
     cout << "*  number_of_threads: " << arguments.number_of_threads << endl;
     cout << "*  num_hashtables: " << arguments.num_hashtables << endl;
     cout << "*  store_archive: " << arguments.store_archive << endl;
+    cout << "*  archive_name: " << (arguments.store_archive ? arguments.archive_name : "N/A") << endl;
     cout << "*  force_write: " << arguments.force_write << endl;
     cout << "* " << endl;
     cout << "*********************************" << endl;
@@ -115,8 +122,8 @@ int main(int argc, char** argv) {
     MultiSketchIndex multi_sketch_index(arguments.num_hashtables);
     compute_index_from_sketches(sketches, multi_sketch_index, arguments.number_of_threads);
     cout << "Index built." << endl;
-    cout << "Some index stats:" << endl;
-    multi_sketch_index.show_index_stats();
+    //cout << "Some index stats:" << endl;
+    //multi_sketch_index.show_index_stats();
 
 
     cout << "Writing index to file..." << endl;
@@ -129,6 +136,7 @@ int main(int argc, char** argv) {
                                             arguments.number_of_threads, 
                                             info_of_sketches,
                                             arguments.store_archive,
+                                            arguments.archive_name,
                                             arguments.force_write);
     if (!success) {
         cout << "Error writing index to file." << endl;
